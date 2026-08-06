@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --green: #3dffa4;
+    --green-glow: rgba(61, 255, 164, .55);
+    
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .6);
+    
+    --red: #ff4d4f;
+    --red-glow: rgba(255, 77, 79, .5);
+    
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --pad: clamp(16px, 4vmin, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+    /* ছোট স্ক্রিনে স্ক্রল অ্যালাও করবে, বড় স্ক্রিনে ফিট থাকবে */
+    overflow-x: hidden; 
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    min-height: 100vh; min-height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 16px);
+    flex: none; z-index: 10;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px);
+    letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
+  }
+  .result-badge {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(11px, 1.6vmin, 14px); letter-spacing: 2px; 
+    color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow);
+    background: rgba(38, 232, 245, 0.1);
+    border: 1px solid var(--cyan);
+    padding: 6px 12px; border-radius: 4px;
+  }
+
+  /* ---------- Content Container ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: flex-start; width: 100%; max-width: 1100px; margin: 0 auto;
+    padding-top: clamp(10px, 2vh, 20px);
+    animation: screenIn .4s ease;
+    overflow-y: auto;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Heading & Explorer Name ---------- */
+  .heading {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(18px, 3.5vmin, 32px); letter-spacing: 2px;
+    color: var(--green); text-align: center; text-shadow: 0 0 16px var(--green-glow);
+    margin: 0 0 8px 0; white-space: nowrap;
+  }
+  .subject-name {
+    font-family: var(--font-display); font-size: clamp(11px, 1.8vmin, 15px); 
+    color: var(--cyan-soft); letter-spacing: 2px; text-align: center; 
+    margin-bottom: clamp(16px, 3vmin, 30px); text-transform: uppercase;
+  }
+  .subject-name span { color: var(--white); font-weight: 700; text-shadow: 0 0 8px rgba(255,255,255,0.4); }
+
+  /* ---------- Symmetrical Layout (3 Cards) ---------- */
+  .result-row {
+    display: flex; flex-wrap: wrap; gap: clamp(16px, 2.5vw, 30px); 
+    align-items: stretch; justify-content: center; 
+    width: 100%; margin-bottom: clamp(20px, 4vmin, 40px);
+  }
+
+  .hud-panel {
+    flex: 1 1 280px; max-width: 350px;
+    background: rgba(0, 10, 12, 0.6); border: 1px solid var(--cyan-dim);
+    border-radius: 8px; display: flex; flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); overflow: hidden;
+  }
+  .hud-header {
+    background: rgba(38, 232, 245, 0.08); padding: clamp(8px, 1.5vmin, 12px);
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(10px, 1.4vmin, 13px); color: var(--cyan);
+    letter-spacing: 2px; border-bottom: 1px solid var(--cyan-dim);
+    text-align: center;
+  }
+  .hud-body {
+    padding: clamp(16px, 2.5vmin, 20px); display: flex; flex-direction: column; 
+    align-items: center; justify-content: space-between; flex: 1;
+  }
+
+  /* ---------- Card 1: Score Ring ---------- */
+  .ring-wrap { position: relative; width: clamp(120px, 22vmin, 180px); height: clamp(120px, 22vmin, 180px); margin-bottom: 10px; }
+  .ring-svg { width: 100%; height: 100%; display: block; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--cyan-dim); stroke-width: 6; opacity: .35; }
+  .ring-progress { 
+    fill: none; stroke: var(--cyan); stroke-width: 6; stroke-linecap: round; 
+    filter: drop-shadow(0 0 8px var(--cyan-glow)); transition: stroke-dashoffset 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); 
+  }
+  .ring-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  
+  .ring-pct { 
+    font-family: var(--font-body); font-weight: 800; 
+    font-size: clamp(26px, 5vmin, 46px); color: var(--cyan); text-shadow: 0 0 12px var(--cyan-glow); 
+  }
+  .ring-grade { 
+    font-family: var(--font-display); font-weight: 600; 
+    font-size: clamp(11px, 1.6vmin, 15px); letter-spacing: 1.5px; color: var(--white); 
+  }
+  .score-caption {
+    font-family: var(--font-display); font-weight: 500; 
+    font-size: clamp(9px, 1.3vmin, 12px); letter-spacing: 1.5px;
+    color: var(--cyan-soft); text-align: center; margin-top: auto; line-height: 1.6;
+  }
+
+  /* ---------- Card 2: Telemetry & QR ---------- */
+  .stat-list { width: 100%; display: flex; flex-direction: column; gap: clamp(8px, 1.5vmin, 12px); margin-bottom: 16px; }
+  .stat-line {
+    font-family: var(--font-display); font-weight: 600; 
+    font-size: clamp(10px, 1.3vmin, 12px); letter-spacing: .5px;
+    color: var(--text-mid); display: flex; justify-content: space-between;
+    border-bottom: 1px dashed rgba(38, 232, 245, 0.2); padding-bottom: 6px;
+  }
+  .stat-line .val { color: var(--white); font-weight: 700; text-align: right; }
+  .stat-line .val.warning { color: var(--red); text-shadow: 0 0 8px var(--red-glow); }
+
+  .qr-wrap { display: flex; flex-direction: column; align-items: center; margin-top: auto; }
+  .qr-frame { 
+    padding: 6px; background: var(--white); border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  }
+  .qr-frame img { display: block; width: clamp(60px, 10vmin, 80px); height: clamp(60px, 10vmin, 80px); object-fit: contain; }
+  .qr-caption {
+    font-family: var(--font-display); font-weight: 500; 
+    font-size: clamp(8px, 1.1vmin, 10px); letter-spacing: 1px;
+    color: var(--cyan-soft); margin-top: 8px;
+  }
+
+  /* ---------- Card 3: Leaderboard ---------- */
+  .lb-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .lb-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-display); font-weight: 500; font-size: clamp(9px, 1.3vmin, 12px);
+    color: var(--text-mid); padding: 8px 10px; border-radius: 4px;
+    background: rgba(255, 255, 255, 0.02); transition: background 0.2s ease;
+  }
+  .lb-row.active {
+    background: rgba(255, 176, 32, 0.1); color: var(--amber); 
+    font-weight: 700; text-shadow: 0 0 8px var(--amber-glow);
+    border: 1px solid rgba(255, 176, 32, 0.3);
+  }
+  .lb-rank { width: 35px; color: var(--cyan-dim); }
+  .lb-row.active .lb-rank { color: var(--amber); }
+  .lb-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+  .lb-score { text-align: right; width: 45px; color: var(--cyan-soft); font-weight: 700;}
+  .lb-row.active .lb-score { color: var(--amber); }
+
+  /* ---------- Exit button ---------- */
+  .exit-row { display: flex; justify-content: center; width: 100%; margin-top: auto; padding-top: 10px; z-index: 5;}
+  .btn-exit {
+    width: 100%; max-width: clamp(260px, 40vw, 360px);
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(12px, 1.8vmin, 16px); letter-spacing: 2px;
+    color: var(--bg); background: var(--cyan); border: none; border-radius: 8px;
+    padding: clamp(14px, 2.2vmin, 20px); cursor: pointer; 
+    box-shadow: 0 0 20px var(--cyan-glow);
+    transition: filter .15s ease, transform .1s ease;
+  }
+  .btn-exit:hover { filter: brightness(1.1); box-shadow: 0 0 30px var(--cyan-glow); }
+  .btn-exit:active { transform: scale(.97); }
+  .btn-exit:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(15px, 3vh, 20px); padding-top: clamp(10px, 2vmin, 14px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center; z-index: 10;
+  }
+</style>
+</head>
+<body data-page="result">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <!-- ডান দিকের কোণায় RESULT লেখাটি অ্যাড করা হয়েছে -->
+    <span class="result-badge">[ RESULT ]</span>
+  </header>
+
+  <div class="content">
+    <h1 class="heading">// SIMULATION COMPLETE //</h1>
+    
+    <div class="subject-name">
+      EXPLORER: <span id="explorer-name-display">SUBJECT 0000</span>
+    </div>
+
+    <!-- ৩টি কার্ডের সিমেট্রিক্যাল লেআউট -->
+    <div class="result-row">
+      
+      <!-- Card 1: Score -->
+      <div class="hud-panel">
+        <div class="hud-header">[ SCORE ANALYSIS ]</div>
+        <div class="hud-body">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 150 150" class="ring-svg" role="img" aria-label="Overall balance score">
+              <circle class="ring-track" cx="75" cy="75" r="64"/>
+              <circle class="ring-progress" id="ring-progress" cx="75" cy="75" r="64"/>
+            </svg>
+            <div class="ring-overlay">
+              <div class="ring-pct" id="score-pct">0%</div>
+              <div class="ring-grade" id="score-grade">GRADE: --</div>
+            </div>
+          </div>
+          <div class="score-caption">OVERALL KINETIC<br>BALANCE SCORE</div>
+        </div>
+      </div>
+
+      <!-- Card 2: Telemetry & QR -->
+      <div class="hud-panel">
+        <div class="hud-header">[ TELEMETRY DATA ]</div>
+        <div class="hud-body">
+          <div class="stat-list">
+            <div class="stat-line"><span>AVG PITCH DEV:</span> <span class="val" id="stat-pitch">0.0&deg;</span></div>
+            <div class="stat-line"><span>AVG ROLL DEV:</span> <span class="val" id="stat-roll">0.0&deg;</span></div>
+            <div class="stat-line"><span>WARNINGS:</span> <span class="val" id="stat-warnings">NONE</span></div>
+          </div>
+          
+          <div class="qr-wrap">
+            <div class="qr-frame">
+              <img src="qr1.png" alt="QR Code" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjNlbSIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MT0c8L3RleHQ+PC9zdmc+'">
+            </div>
+            <div class="qr-caption">[ SCAN FOR LOG ]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Leaderboard -->
+      <div class="hud-panel">
+        <div class="hud-header">[ GLOBAL RANKING ]</div>
+        <div class="hud-body" style="justify-content: center;">
+          <div class="lb-list" id="lb-list">
+            <!-- Rows injected by JS -->
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Exit Button -->
+    <div class="exit-row">
+      <button class="btn-exit" id="btn-exit">EXIT</button>
+    </div>
+  </div>
+
+  <footer class="statusbar">SYS.STATUS: DATA_SAVED_SECURELY // AWAITING_NEW_SUBJECT</footer>
+</div>
+
+<script>
+  (function () {
+    // -------------------------------------------------------------
+    // FETCH NAME FROM LOCAL STORAGE
+    // -------------------------------------------------------------
+    var rawName = localStorage.getItem('explorerName') || 'SUBJECT 0000';
+    var savedName = rawName.toUpperCase();
+    var nameDisplay = document.getElementById('explorer-name-display');
+    if (nameDisplay) {
+      nameDisplay.textContent = savedName;
+    }
+
+    // -------------------------------------------------------------
+    // URL PARAMETERS
+    // -------------------------------------------------------------
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
+
+    var balance = parseFloat(params.get('balance'));
+    if (isNaN(balance)) balance = 94;
+    balance = Math.max(0, Math.min(100, Math.round(balance)));
+
+    var pitch = parseFloat(params.get('pitch'));
+    if (isNaN(pitch)) pitch = 1.2;
+
+    var roll = parseFloat(params.get('roll'));
+    if (isNaN(roll)) roll = 0.8;
+
+    var reason = params.get('reason') || 'completed';
+
+    function grade(pct) {
+      if (pct >= 90) return 'A';
+      if (pct >= 75) return 'B';
+      if (pct >= 60) return 'C';
+      return 'D';
+    }
+
+    // -------------------------------------------------------------
+    // INJECT DATA
+    // -------------------------------------------------------------
+    document.getElementById('score-pct').textContent = balance + '%';
+    document.getElementById('score-grade').textContent = 'GRADE: ' + grade(balance);
+    document.getElementById('stat-pitch').textContent = Math.abs(pitch).toFixed(1) + '\u00B0';
+    document.getElementById('stat-roll').textContent = Math.abs(roll).toFixed(1) + '\u00B0';
+    
+    var warningEl = document.getElementById('stat-warnings');
+    if (reason === 'stopped') {
+      warningEl.textContent = 'E-STOP ACTIVATED';
+      warningEl.classList.add('warning'); // Highlights warning in Red
+    } else {
+      warningEl.textContent = 'NONE';
+    }
+
+    // -------------------------------------------------------------
+    // LEADERBOARD LOGIC
+    // -------------------------------------------------------------
+    var fakeNamesList = ["CYPHER", "NOVA", "WRAITH", "JAX", "AURA", "NEO", "TRINITY", "ZED", "KRYPT", "VORTEX", "APOLLO", "ECHO"];
+    var userRank = Math.floor(Math.random() * 15) + 4; // User gets a rank between 4 and 18
+    var lbList = document.getElementById('lb-list');
+    
+    for (var i = userRank - 2; i <= userRank + 2; i++) {
+      var row = document.createElement('div');
+      row.className = 'lb-row' + (i === userRank ? ' active' : '');
+      
+      var rRank = document.createElement('span');
+      rRank.className = 'lb-rank';
+      rRank.textContent = '#' + i;
+      
+      var rName = document.createElement('span');
+      rName.className = 'lb-name';
+      
+      var rScore = document.createElement('span');
+      rScore.className = 'lb-score';
+      
+      if (i === userRank) {
+         rName.textContent = savedName.substring(0, 10);
+         rScore.textContent = balance + '%';
+      } else {
+         var offset = userRank - i; // +2, +1, -1, -2
+         var fScore = balance + (offset * Math.floor(Math.random() * 3 + 1));
+         if (fScore > 99) fScore = 99;
+         if (fScore < 10) fScore = 10;
+         rName.textContent = fakeNamesList[Math.floor(Math.random() * fakeNamesList.length)] + '_' + Math.floor(Math.random() * 99);
+         rScore.textContent = fScore + '%';
+      }
+      
+      row.appendChild(rRank);
+      row.appendChild(rName);
+      row.appendChild(rScore);
+      lbList.appendChild(row);
+    }
+
+    // -------------------------------------------------------------
+    // RING ANIMATION (Runs smoothly after load)
+    // -------------------------------------------------------------
+    setTimeout(function() {
+      var ring = document.getElementById('ring-progress');
+      var r = 64;
+      var circumference = 2 * Math.PI * r;
+      ring.style.strokeDasharray = circumference.toFixed(2);
+      
+      // Calculate offset based on balance
+      var offset = circumference * (1 - balance / 100);
+      ring.style.strokeDashoffset = offset.toFixed(2);
+    }, 100);
+
+    // -------------------------------------------------------------
+    // EXIT & CLEAR DATA
+    // -------------------------------------------------------------
+    document.getElementById('btn-exit').addEventListener('click', function () {
+      // Data remains in local storage temporarily if needed for exit page
+      window.location.href = '09-exit.html?mode=' + mode;
+    });
+  })();
+</script>
+</body>
+</html>

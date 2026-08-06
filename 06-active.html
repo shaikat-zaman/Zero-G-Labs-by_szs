@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Active Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .6);
+
+    --danger: #ff4d4f;
+    --danger-glow: rgba(255, 77, 79, .5);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Fluid scaling for all screens */
+    --pad: clamp(16px, 4vmin, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+    overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ */
+  }
+
+  /* NOTE: OS "Reduce motion" ON disables ring spin / pulse / cog drift. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .cog { transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    height: 100vh; height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* ---------- Glitch Overlay ---------- */
+  .glitch-overlay {
+    position: absolute; inset: 0; background: rgba(40, 0, 0, 0.85);
+    z-index: 9999; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.1s ease;
+  }
+  @supports (backdrop-filter: blur(4px)) {
+    .glitch-overlay { backdrop-filter: blur(4px); }
+  }
+  .glitch-overlay.active {
+    opacity: 1; pointer-events: all; animation: screenShake 0.3s infinite;
+  }
+  .glitch-title {
+    font-family: var(--font-display); font-size: clamp(24px, 6vw, 48px);
+    color: var(--danger); text-shadow: 0 0 20px var(--danger-glow), 2px 2px 0px #000, -2px -2px 0px var(--cyan);
+    text-align: center; margin: 0; letter-spacing: 4px;
+    animation: textGlitch 0.2s infinite; padding: 0 20px;
+  }
+  .glitch-sub {
+    font-family: var(--font-body); font-size: clamp(12px, 3vw, 18px); color: var(--white);
+    margin-top: 10px; letter-spacing: 2px; animation: blinkFast 0.4s infinite;
+  }
+
+  @keyframes screenShake {
+    0% { transform: translate(2px, 1px) rotate(0deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
+  @keyframes textGlitch {
+    0% { transform: skew(0deg); } 20% { transform: skew(-10deg); }
+    40% { transform: skew(10deg); } 60% { transform: skew(0deg); }
+    80% { transform: skew(5deg); } 100% { transform: skew(-5deg); }
+  }
+  @keyframes blinkFast { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px; border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 16px); flex: none; z-index: 10;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px); letter-spacing: 3px; color: var(--white);
+    text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap;
+  }
+
+  .btn-abort {
+    flex: none; width: auto; background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
+    color: var(--danger); font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
+    padding: 6px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-abort:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-abort:active { transform: scale(0.95); }
+
+  /* ---------- Content Container ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: space-between; 
+    width: 100%; max-width: 700px; margin: 0 auto;
+    padding-top: clamp(8px, 1.5vh, 16px);
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Heading ---------- */
+  .heading {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(16px, 3.5vmin, 28px); letter-spacing: 2px;
+    color: var(--amber); text-align: center; text-shadow: 0 0 16px var(--amber-glow);
+    margin: 0 0 10px 0; flex: none;
+  }
+
+  /* ---------- NEW: Live Directive & Timer Box ---------- */
+  .directive-panel {
+    width: 100%; max-width: 500px; flex: none;
+    background: rgba(0, 10, 12, 0.5); 
+    border: 1px solid var(--cyan-dim); border-left: 4px solid var(--cyan);
+    border-radius: 4px; padding: clamp(8px, 1.5vmin, 12px) clamp(12px, 2vmin, 16px);
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    margin-bottom: clamp(6px, 1vh, 12px);
+  }
+  .timer-row {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+  }
+  .timer-label {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(10px, 1.5vmin, 14px); color: var(--cyan);
+    letter-spacing: 1.5px; white-space: nowrap;
+  }
+  .timer-bar-bg {
+    flex: 1; height: 6px; background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px; overflow: hidden; position: relative;
+  }
+  .timer-bar-fill {
+    height: 100%; width: 100%; background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow); transition: width 1s linear;
+  }
+  .directive-text {
+    font-family: 'Courier New', Courier, monospace; font-weight: bold;
+    font-size: clamp(10px, 1.4vmin, 13px); color: var(--white);
+    letter-spacing: 1px; text-shadow: 0 0 6px rgba(255,255,255,0.4);
+    text-align: left; transition: color 0.2s ease;
+  }
+
+  /* ---------- Radar Area ---------- */
+  .radar-wrap {
+    flex: 1; display: flex; justify-content: center; align-items: center;
+    width: 100%; min-height: 0; margin: 0 0 clamp(10px, 2vh, 20px) 0;
+  }
+  .radar-svg { 
+    height: 100%; max-height: clamp(200px, 40vh, 380px); 
+    width: auto; display: block; 
+  }
+
+  .r-ring { fill: none; stroke: var(--cyan); }
+  .r-ring--outer { stroke-width: 1.4; opacity: .8; }
+  .r-ring--mid { stroke-width: 1.1; opacity: .5; }
+  .r-ring--inner { stroke-width: 1.1; opacity: .4; }
+  .r-tick { stroke: var(--cyan-soft); stroke-width: 1; opacity: .55; }
+  .r-cross { stroke: var(--cyan); stroke-width: 1.2; opacity: .75; }
+  .r-arrow { fill: var(--cyan-soft); opacity: .9; }
+  .r-center { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); animation: pulseDot 1.9s ease-in-out infinite; }
+  @keyframes pulseDot { 0%, 100% { r: 3.2; opacity: 1; } 50% { r: 4.6; opacity: .6; } }
+
+  .cog { transition: transform .8s cubic-bezier(.22, .61, .36, 1); }
+  .cog-dot { fill: var(--amber); filter: drop-shadow(0 0 10px var(--amber-glow)); }
+  .cog-label {
+    font-family: var(--font-display); font-weight: 600; font-size: 9px; letter-spacing: 2px;
+    fill: var(--white); text-anchor: middle;
+  }
+
+  /* ---------- HUD Dashboard ---------- */
+  .hud-dashboard {
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(10px, 2vw, 24px); width: 100%; flex: none;
+    margin-bottom: clamp(10px, 2vh, 20px);
+  }
+
+  .stat-box {
+    position: relative; flex: 1; max-width: 140px; 
+    padding: clamp(10px, 1.8vmin, 16px) 5px; text-align: center;
+    border: 1px solid var(--cyan-dim); border-radius: 6px; background: rgba(38, 232, 245, .03);
+  }
+  .stat-box::before, .stat-box::after {
+    content: ""; position: absolute; width: 8px; height: 8px; border-color: var(--cyan); opacity: .75;
+  }
+  .stat-box::before { top: -1px; left: -1px; border-top: 1.5px solid var(--cyan); border-left: 1.5px solid var(--cyan); }
+  .stat-box::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid var(--cyan); border-right: 1.5px solid var(--cyan); }
+  
+  .stat-label {
+    font-family: var(--font-display); font-weight: 500; 
+    font-size: clamp(8px, 1.2vmin, 10px); letter-spacing: 2px;
+    color: var(--text-dim); margin-bottom: clamp(4px, 1vmin, 8px);
+  }
+  .stat-value {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(14px, 2.2vmin, 20px); letter-spacing: 1px;
+    color: var(--white); text-shadow: 0 0 10px var(--cyan-glow);
+  }
+
+  .balance-pill {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(38, 232, 245, 0.1); border: 1.5px solid var(--cyan); border-radius: 12px; 
+    padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 30px);
+    box-shadow: inset 0 0 16px rgba(38, 232, 245, 0.2), 0 0 20px var(--cyan-glow);
+    min-width: 140px;
+  }
+  .balance-label { font-family: var(--font-display); font-weight: 600; font-size: clamp(9px, 1.2vmin, 11px); color: var(--cyan); letter-spacing: 2px; margin-bottom: 4px; }
+  .balance-value { font-family: var(--font-display); font-weight: 800; font-size: clamp(20px, 3.5vmin, 28px); color: var(--white); text-shadow: 0 0 12px var(--cyan-glow); }
+
+  /* ---------- Emergency stop Button ---------- */
+  .estop-row { 
+    display: flex; justify-content: center; width: 100%; flex: none;
+    margin-bottom: clamp(10px, 2vh, 20px);
+  }
+  .btn-estop {
+    width: 100%; max-width: 400px;
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(11px, 1.6vmin, 15px); letter-spacing: 2px;
+    color: #3a0a0a; background: var(--danger); border: none; border-radius: 8px;
+    padding: clamp(14px, 2vmin, 18px); cursor: pointer; white-space: nowrap;
+    box-shadow: 0 0 20px var(--danger-glow);
+    transition: filter .15s ease, transform .1s ease, background .15s ease, color .15s ease;
+    animation: estopGlow 2.4s ease-in-out infinite;
+  }
+  .btn-estop:hover { filter: brightness(1.1); }
+  .btn-estop:active { transform: scale(.97); }
+  .btn-estop:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+  @keyframes estopGlow { 0%, 100% { box-shadow: 0 0 16px var(--danger-glow); } 50% { box-shadow: 0 0 28px var(--danger-glow); } }
+  
+  .btn-estop.halted { background: var(--text-dim); color: #0a1516; box-shadow: none; animation: none; }
+  .btn-estop:disabled { opacity: .7; cursor: not-allowed; }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vh, 16px); padding-top: clamp(10px, 2vmin, 14px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center; z-index: 10;
+  }
+</style>
+</head>
+<body data-page="active-test">
+
+<div class="app">
+  
+  <!-- GLITCH OVERLAY -->
+  <div id="glitch-overlay" class="glitch-overlay">
+    <h1 class="glitch-title">GRAVITY ANOMALY DETECTED</h1>
+    <div class="glitch-sub">CRITICAL SYSTEM FAILURE IMMINENT...</div>
+  </div>
+
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-abort" onclick="window.location.href='01-idle.html'">ABORT</button>
+  </header>
+
+  <div class="content">
+    
+    <h1 class="heading">// ACTIVE SIMULATION //</h1>
+
+    <!-- NEW: Timer & Instruction Box -->
+    <div class="directive-panel">
+      <div class="timer-row">
+        <span class="timer-label">T-MINUS: 00:<span id="time-left">15</span></span>
+        <div class="timer-bar-bg">
+          <div class="timer-bar-fill" id="timer-fill"></div>
+        </div>
+      </div>
+      <div class="directive-text" id="directive-text">>> INITIATING SENSORS. HOLD POSITION.</div>
+    </div>
+
+    <!-- Radar Area -->
+    <div class="radar-wrap">
+      <svg viewBox="0 0 300 300" class="radar-svg" role="img" aria-label="Live balance radar">
+        <circle class="r-ring r-ring--outer" cx="150" cy="150" r="108"/>
+        <circle class="r-ring r-ring--mid"   cx="150" cy="150" r="80"/>
+        <circle class="r-ring r-ring--inner" cx="150" cy="150" r="50"/>
+
+        <g id="radar-ticks"></g>
+
+        <line class="r-cross" x1="150" y1="150" x2="150" y2="50"/>
+        <line class="r-cross" x1="150" y1="150" x2="150" y2="250"/>
+        <line class="r-cross" x1="150" y1="150" x2="250" y2="150"/>
+        <line class="r-cross" x1="150" y1="150" x2="50"  y2="150"/>
+
+        <polygon class="r-arrow" points="150,28 144,42 156,42"/>
+        <polygon class="r-arrow" points="150,272 144,258 156,258"/>
+        <polygon class="r-arrow" points="272,150 258,144 258,156"/>
+        <polygon class="r-arrow" points="28,150 42,144 42,156"/>
+
+        <circle class="r-center" cx="150" cy="150" r="3.2"/>
+
+        <g id="cog" class="cog" transform="translate(150,150)">
+          <text class="cog-label" x="35" y="-38">C.O.G.</text>
+          <circle class="cog-dot" cx="35" cy="-28" r="13"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Symmetrical Dashboard -->
+    <div class="hud-dashboard">
+      <div class="stat-box">
+        <div class="stat-label">PITCH</div>
+        <div class="stat-value" id="pitch-val">+ 12.4&deg;</div>
+      </div>
+      
+      <div class="balance-pill">
+        <span class="balance-label">BALANCE</span>
+        <span class="balance-value" id="balance-val">84%</span>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">ROLL</div>
+        <div class="stat-value" id="roll-val">- 05.2&deg;</div>
+      </div>
+    </div>
+
+    <!-- Emergency stop -->
+    <div class="estop-row">
+      <button class="btn-estop" id="btn-estop">[ EMERGENCY STOP ]</button>
+    </div>
+
+  </div>
+
+  <footer class="statusbar" id="statusbar">SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION</footer>
+</div>
+
+<script>
+  (function () {
+    var NS = 'http://www.w3.org/2000/svg';
+
+    /* Draw radar ticks */
+    var ticksG = document.getElementById('radar-ticks');
+    var cx = 150, cy = 150, rOut = 108, rIn = 101, count = 48;
+    for (var i = 0; i < count; i++) {
+      var a = (i / count) * Math.PI * 2;
+      var ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', (cx + rOut * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y1', (cy + rOut * Math.sin(a)).toFixed(1));
+      ln.setAttribute('x2', (cx + rIn  * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y2', (cy + rIn  * Math.sin(a)).toFixed(1));
+      ln.setAttribute('class', 'r-tick');
+      ticksG.appendChild(ln);
+    }
+
+    var cog       = document.getElementById('cog');
+    var pitchEl   = document.getElementById('pitch-val');
+    var rollEl    = document.getElementById('roll-val');
+    var balanceEl = document.getElementById('balance-val');
+    var estopBtn  = document.getElementById('btn-estop');
+    var statusbar = document.getElementById('statusbar');
+    var overlay   = document.getElementById('glitch-overlay');
+    
+    var timeTxt   = document.getElementById('time-left');
+    var timerFill = document.getElementById('timer-fill');
+    var dirTxt    = document.getElementById('directive-text');
+
+    var running = true;
+    var t = 0;
+    var isGlitching = false;
+    var last = { pitch: 12.4, roll: -5.2, balance: 84 };
+
+    // Set Total Test Duration (15 seconds)
+    var timeLeft = 15;
+
+    // Messages for the directive box
+    var dirMessages = [
+      ">> MAINTAIN POSTURE. DO NOT MOVE.",
+      ">> CALCULATING CENTER OF GRAVITY...",
+      ">> HOLD STEADY. RECORDING VECTORS.",
+      ">> PITCH AND ROLL COMPENSATING...",
+      ">> TELEMETRY LINK STABLE.",
+      ">> AVOID SUDDEN SHIFTS."
+    ];
+
+    function fmt(n) {
+      var sign = n >= 0 ? '+' : '-';
+      var abs = Math.abs(n).toFixed(1);
+      if (abs.length < 4) abs = '0' + abs;
+      return sign + ' ' + abs + '\u00B0';
+    }
+
+    // Radar Telemetry Logic (updates smoothly)
+    function tick() {
+      if (!running) return;
+      t += 1;
+
+      var pitch = 12.4 + Math.sin(t * 0.35) * 4 + (Math.random() - 0.5) * 1.5;
+      var roll  = -5.2 + Math.cos(t * 0.42) * 3 + (Math.random() - 0.5) * 1.5;
+
+      var dx = Math.max(-70, Math.min(70, roll * 6));
+      var dy = Math.max(-70, Math.min(70, -pitch * 4));
+
+      cog.setAttribute('transform', 'translate(' + (150 + dx) + ',' + (150 + dy) + ')');
+
+      if (!isGlitching) {
+        pitchEl.textContent = fmt(pitch);
+        rollEl.textContent  = fmt(roll);
+
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var balance = Math.round(Math.max(55, 99 - dist * 0.35));
+        balanceEl.textContent = balance + '%';
+
+        last.pitch = pitch;
+        last.roll = roll;
+        last.balance = balance;
+      }
+    }
+    var loop = setInterval(tick, 900);
+    tick();
+
+    // ---------------------------------------------------------
+    // COUNTDOWN & INSTRUCTION TIMER LOGIC (Runs every 1 sec)
+    // ---------------------------------------------------------
+    var countdownTimer = setInterval(function() {
+      if (!running) return;
+      timeLeft--;
+
+      if (timeLeft <= 0) {
+        timeLeft = 0;
+        endTest('completed');
+      }
+
+      // Update progress bar & time text
+      timeTxt.textContent = (timeLeft < 10 ? '0' : '') + timeLeft;
+      timerFill.style.width = ((timeLeft / 15) * 100) + '%';
+
+      // Update Instruction text randomly every 3 seconds
+      if (!isGlitching && timeLeft > 0 && timeLeft % 3 === 0) {
+        dirTxt.style.color = "var(--white)";
+        dirTxt.textContent = dirMessages[Math.floor(Math.random() * dirMessages.length)];
+      }
+    }, 1000);
+
+
+    // ---------------------------------------------------------
+    // EASTER EGG / GLITCH LOGIC
+    // ---------------------------------------------------------
+    var glitchTime = 4000 + (Math.random() * 6000); 
+    
+    var glitchTrigger = setTimeout(function() {
+      if (!running) return; 
+      
+      isGlitching = true;
+      overlay.classList.add('active');
+      
+      // Corrupt the UI numbers briefly
+      pitchEl.textContent = "ERR!!";
+      rollEl.textContent  = "ERR!!";
+      balanceEl.textContent = "00%";
+      statusbar.textContent = "SYS.STATUS: ANOMALY_DETECTED // SENSORS_OFFLINE // WARNING";
+      
+      // Update Directive Box to show Warning
+      dirTxt.style.color = "var(--danger)";
+      dirTxt.textContent = ">> CRITICAL WARNING: SYSTEM OVERLOAD!";
+
+      setTimeout(function() {
+        if (!running) return;
+        isGlitching = false;
+        overlay.classList.remove('active');
+        statusbar.textContent = "SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION";
+        
+        // Restore Directive
+        dirTxt.style.color = "var(--cyan-soft)";
+        dirTxt.textContent = ">> SYSTEM RECOVERED. STABILIZING...";
+      }, 1500);
+      
+    }, glitchTime);
+
+    // ---------------------------------------------------------
+    // END TEST LOGIC
+    // ---------------------------------------------------------
+    function endTest(reason) {
+      if (!running) return;
+      running = false;
+      clearInterval(loop);
+      clearInterval(countdownTimer);
+      clearTimeout(glitchTrigger); 
+
+      isGlitching = false;
+      overlay.classList.remove('active');
+      
+      // Force timer to zero visually if ended manually
+      timeTxt.textContent = "00";
+      timerFill.style.width = "0%";
+
+      estopBtn.disabled = true;
+      estopBtn.textContent = '[ ENDING TEST... ]';
+      estopBtn.classList.add('halted');
+      
+      if (reason === 'stopped') {
+        statusbar.textContent = 'SYS.STATUS: HALTED // EMERGENCY_STOP_ENGAGED // COMPILING_RESULTS';
+        dirTxt.style.color = "var(--danger)";
+        dirTxt.textContent = ">> SIMULATION ABORTED BY USER.";
+      } else {
+        statusbar.textContent = 'SYS.STATUS: TEST_COMPLETE // COMPILING_RESULTS';
+        dirTxt.style.color = "var(--green)";
+        dirTxt.textContent = ">> SIMULATION COMPLETE. ANALYZING DATA...";
+      }
+
+      setTimeout(function () {
+        var params = new URLSearchParams(window.location.search);
+        var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
+        var qs = new URLSearchParams({
+          mode: mode,
+          balance: String(last.balance),
+          pitch: last.pitch.toFixed(1),
+          roll: last.roll.toFixed(1),
+          reason: reason
+        });
+        window.location.href = '08-result.html?' + qs.toString();
+      }, 1200);
+    }
+
+    estopBtn.addEventListener('click', function () { endTest('stopped'); });
+  })();
+</script>
+</body>
+</html>

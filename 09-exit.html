@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Exit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --yellow: #ffdd44;
+    --yellow-glow: rgba(255, 221, 68, .55);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Fluid scaling for all screens */
+    --pad: clamp(18px, 4vmin, 56px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+
+  /* NOTE: OS "Reduce motion" ON disables the arrow bob / pulse. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    min-height: 100vh; min-height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 18px);
+    flex: none;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px);
+    letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
+  }
+  .stepbadge {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(9px, 1.4vmin, 14px); letter-spacing: 1.5px; color: var(--text-mid);
+  }
+
+  /* ---------- Heading ---------- */
+  .heading {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(17px, 3.5vmin, 32px); letter-spacing: 2px;
+    color: var(--white); text-align: center; text-shadow: 0 0 16px rgba(234, 246, 247, .4);
+    margin: clamp(14px, 3vmin, 24px) 0 clamp(8px, 2vmin, 16px);
+  }
+
+  /* ---------- Content ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: center; text-align: center;
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Arrow ---------- */
+  .arrow-wrap { 
+    margin-bottom: clamp(6px, 1.5vmin, 12px); 
+    animation: bob 1.8s ease-in-out infinite; 
+  }
+  .arrow-svg { width: clamp(110px, 20vmin, 180px); height: auto; display: block; }
+  .arrow-stem { stroke: var(--yellow); stroke-width: 1.4; opacity: .55; fill: none; }
+  .arrow-small { stroke: var(--yellow); stroke-width: 1.6; opacity: .6; fill: none; }
+  .arrow-main { stroke: var(--yellow); stroke-width: 3; opacity: .95; fill: none; filter: drop-shadow(0 0 8px var(--yellow-glow)); }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+  /* ---------- Boots ---------- */
+  .boots-wrap { margin: clamp(10px, 2.5vmin, 22px) 0 clamp(16px, 3.5vmin, 32px); }
+  .boots-svg { width: clamp(80px, 16vmin, 140px); height: auto; display: block; }
+  .boot-line { fill: none; stroke: var(--cyan); stroke-width: 1.6; opacity: .85; stroke-linejoin: round; stroke-linecap: round; }
+  .boot-loop { fill: none; stroke: var(--cyan); stroke-width: 1.4; opacity: .8; }
+
+  .stepdown {
+    font-family: var(--font-body); font-weight: 800; 
+    font-size: clamp(15px, 3vmin, 26px); letter-spacing: .5px;
+    color: var(--yellow); text-shadow: 0 0 14px var(--yellow-glow);
+  }
+
+  /* ---------- Progress Block (Footer Alternative) ---------- */
+  .progress-block { 
+    width: 100%; max-width: clamp(280px, 50vw, 480px); 
+    margin: clamp(20px, 4vmin, 40px) auto 0;
+    flex: none; /* Keeps it strictly at the bottom */
+    animation: screenIn .6s ease;
+  }
+  .progress-caption {
+    font-family: var(--font-body); font-weight: 600; 
+    font-size: clamp(10px, 1.5vmin, 14px); letter-spacing: 1px;
+    color: var(--cyan); margin-bottom: clamp(8px, 1.5vmin, 14px);
+    text-align: center;
+  }
+  .progress-track {
+    position: relative; width: 100%; height: clamp(16px, 2.5vmin, 26px);
+    border: 1.4px solid var(--cyan-dim); border-radius: 3px; background: rgba(38, 232, 245, .04);
+  }
+  .progress-fill {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 0%;
+    background: var(--cyan); border-radius: 2px;
+    box-shadow: 0 0 14px var(--cyan-glow);
+    transition: width 4s linear;
+  }
+  
+  .p-corner { position: absolute; width: clamp(7px, 1.2vmin, 11px); height: clamp(7px, 1.2vmin, 11px); pointer-events: none; }
+  .p-corner.tl { top: -1px; left: -1px; border-top: 1.4px solid var(--cyan); border-left: 1.4px solid var(--cyan); }
+  .p-corner.tr { top: -1px; right: -1px; border-top: 1.4px solid var(--cyan); border-right: 1.4px solid var(--cyan); }
+  .p-corner.bl { bottom: -1px; left: -1px; border-bottom: 1.4px solid var(--cyan); border-left: 1.4px solid var(--cyan); }
+  .p-corner.br { bottom: -1px; right: -1px; border-bottom: 1.4px solid var(--cyan); border-right: 1.4px solid var(--cyan); }
+
+</style>
+</head>
+<body data-page="exit">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <span class="stepbadge">Complete</span>
+  </header>
+
+  <h1 class="heading">// SYSTEM OFFBOARDING //</h1>
+
+  <div class="content">
+
+    <div class="arrow-wrap">
+      <svg viewBox="0 0 300 220" class="arrow-svg" role="img" aria-label="Step down">
+        <path class="arrow-stem" d="M150 20 L150 78"/>
+        <path class="arrow-small" d="M110 78 L150 113 L190 78"/>
+        <path class="arrow-main" d="M95 138 L150 194 L205 138"/>
+      </svg>
+    </div>
+
+    <div class="boots-wrap">
+      <svg viewBox="0 0 160 130" class="boots-svg" role="img" aria-label="Step off the platform">
+        <defs>
+          <g id="boot-exit">
+            <path class="boot-line" d="M-11 -40 Q-11 -46 -4 -46 L4 -46 Q11 -46 11 -40 L11 22 Q11 30 6 33 Q0 37 -6 33 Q-11 30 -11 22 Z"/>
+            <circle class="boot-loop" cx="0" cy="4" r="5"/>
+          </g>
+        </defs>
+        <use href="#boot-exit" transform="translate(58,50) rotate(-10)"/>
+        <use href="#boot-exit" transform="translate(102,50) rotate(10)"/>
+      </svg>
+    </div>
+
+    <div class="stepdown">PLEASE STEP DOWN SAFELY</div>
+  </div>
+
+  <!-- Replaces the usual .statusbar in this screen -->
+  <div class="progress-block">
+    <div class="progress-caption" id="progress-caption">AUTO-RESETTING TO SYSTEM STANDBY...</div>
+    <div class="progress-track">
+      <span class="p-corner tl"></span><span class="p-corner tr"></span>
+      <span class="p-corner bl"></span><span class="p-corner br"></span>
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var RESET_MS = 4000;
+    var fill = document.getElementById('progress-fill');
+
+    // Kick the fill animation off after paint so the 4s CSS transition runs cleanly
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        fill.style.width = '100%';
+      });
+    });
+
+    // Auto-redirect to the first (idle) screen
+    setTimeout(function () {
+      window.location.href = '01-idle.html';
+    }, RESET_MS);
+  })();
+</script>
+</body>
+</html>

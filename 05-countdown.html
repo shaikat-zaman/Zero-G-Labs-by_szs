@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .6);
+
+    --red: #ff4d4f;
+    --danger: #ff4d4f;
+    --danger-glow: rgba(255, 77, 79, .5);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Fluid scaling for all screens */
+    --pad: clamp(16px, 4vmin, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+    overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ */
+  }
+
+  /* NOTE: if OS "Reduce motion" is ON, this stops the ring spin + pulse. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    height: 100vh; height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px; border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 16px); flex: none; z-index: 10;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px); letter-spacing: 3px; color: var(--white);
+    text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap;
+  }
+
+  /* ABORT Button (Replacing step badge) */
+  .btn-abort {
+    flex: none; width: auto;
+    background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
+    color: var(--danger); font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
+    padding: 6px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-abort:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-abort:active { transform: scale(0.95); }
+
+  /* ---------- Content ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: center; text-align: center; gap: clamp(10px, 2.5vmin, 20px);
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .activating {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(16px, 3.5vmin, 28px); letter-spacing: 2px;
+    color: var(--amber); text-shadow: 0 0 16px var(--amber-glow); 
+    margin-bottom: clamp(24px, 5vh, 45px); text-transform: uppercase;
+  }
+  .highlight-name { color: var(--cyan); text-shadow: 0 0 12px var(--cyan-glow); }
+
+  /* ---------- Countdown ring row ---------- */
+  .count-row {
+    display: flex; align-items: center; justify-content: center; 
+    gap: clamp(14px, 2.5vw, 30px);
+  }
+
+  .bracket-txt {
+    font-family: var(--font-body); font-weight: 300; 
+    font-size: clamp(60px, 14vmin, 110px); line-height: 1;
+    color: var(--cyan); opacity: .65; filter: drop-shadow(0 0 8px var(--cyan-glow));
+  }
+
+  .ring-wrap {
+    position: relative; flex: none;
+    width: clamp(180px, 35vmin, 320px); 
+    height: clamp(180px, 35vmin, 320px);
+    display: flex; justify-content: center; align-items: center;
+  }
+  .ring-svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+
+  .ring-dash {
+    fill: none; stroke: var(--cyan); stroke-width: 2.5; opacity: .7;
+    stroke-dasharray: 6 10; stroke-linecap: round;
+  }
+  .ring-solid { fill: none; stroke: var(--cyan); stroke-width: 1.5; opacity: .85; }
+  
+  /* Inner warning ring */
+  .ring-inner { fill: none; stroke: var(--amber); stroke-width: 1; opacity: 0.5; stroke-dasharray: 4 4; }
+
+  .ring-spin { transform-box: view-box; transform-origin: 100px 100px; animation: spin 10s linear infinite; }
+  .ring-spin-reverse { transform-box: view-box; transform-origin: 100px 100px; animation: spin 8s linear infinite reverse; }
+  
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .count-num {
+    position: relative; z-index: 2;
+    font-family: var(--font-body); font-weight: 800; 
+    font-size: clamp(90px, 18vmin, 160px); line-height: 1;
+    color: var(--white); text-shadow: 0 0 20px rgba(255, 255, 255, .6), 0 0 40px var(--cyan-glow);
+  }
+  
+  /* Heartbeat Pulse Animation */
+  .count-num.pulse { animation: countPulse 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes countPulse { 
+    0% { transform: scale(0.7); opacity: 0.5; } 
+    40% { transform: scale(1.15); opacity: 1; } 
+    100% { transform: scale(1); opacity: 1; } 
+  }
+
+  /* "GO" Text styling */
+  .count-num.go-state {
+    color: var(--cyan);
+    font-size: clamp(60px, 12vmin, 110px);
+    text-shadow: 0 0 30px var(--cyan-glow);
+    animation: goPulse 1s ease-out forwards;
+  }
+  @keyframes goPulse {
+    0% { transform: scale(0.8); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; filter: blur(4px); }
+  }
+
+  .standfirm {
+    font-family: var(--font-display); font-weight: 600; 
+    font-size: clamp(10px, 1.8vmin, 15px); letter-spacing: 2px;
+    color: var(--red); margin-top: clamp(24px, 5vh, 45px); 
+    text-shadow: 0 0 10px var(--red-glow);
+    animation: blinkText 1.2s infinite;
+  }
+  @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vh, 20px); padding-top: clamp(10px, 2vmin, 14px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center; z-index: 10;
+  }
+</style>
+</head>
+<body data-page="countdown">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-abort" onclick="window.location.href='01-idle.html'">ABORT</button>
+  </header>
+
+  <div class="content">
+    <div class="activating" id="prep-text">// PREPARE, <span class="highlight-name">EXPLORER</span> //</div>
+
+    <div class="count-row">
+      <span class="bracket-txt">[</span>
+
+      <div class="ring-wrap">
+        <svg viewBox="0 0 200 200" class="ring-svg" role="img" aria-label="Countdown timer">
+          <g class="ring-spin">
+            <circle class="ring-dash" cx="100" cy="100" r="92"/>
+          </g>
+          <g class="ring-spin-reverse">
+            <circle class="ring-inner" cx="100" cy="100" r="65"/>
+          </g>
+          <circle class="ring-solid" cx="100" cy="100" r="78"/>
+        </svg>
+        <div class="count-num pulse" id="count-num">3</div>
+      </div>
+
+      <span class="bracket-txt">]</span>
+    </div>
+
+    <div class="standfirm">[ DO NOT STEP OFF THE PLATFORM ]</div>
+  </div>
+
+  <footer class="statusbar" id="sys-status">SYS.STATUS: INITIATING_SEQUENCE // LOCKING_MECHANISMS</footer>
+</div>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
+
+    // 1. Fetch User Name
+    var explorerName = localStorage.getItem('explorerName');
+    if (!explorerName || explorerName.trim() === '' || explorerName === 'UNKNOWN EXPLORER') {
+      explorerName = 'EXPLORER';
+    } else {
+      // Get first name if it's too long
+      explorerName = explorerName.split(' ')[0].toUpperCase();
+    }
+    
+    // Inject Name into Header
+    document.getElementById('prep-text').innerHTML = '// PREPARE, <span class="highlight-name">' + explorerName + '</span> //';
+
+    // 2. Countdown Logic
+    var numEl = document.getElementById('count-num');
+    var statusbar = document.getElementById('sys-status');
+    var n = 3;
+
+    var timer = setInterval(function () {
+      n -= 1;
+      
+      if (n === 0) {
+        clearInterval(timer);
+        
+        // Final "GO!" State
+        numEl.textContent = "GO!";
+        numEl.classList.remove('pulse');
+        numEl.classList.add('go-state');
+        statusbar.textContent = "SYS.STATUS: GRAVITY_SHIFT_ENGAGED // SIMULATION_ACTIVE";
+        
+        // Wait 1 second after "GO!" before redirecting
+        setTimeout(function() {
+          window.location.href = '06-active.html?mode=' + mode;
+        }, 1000);
+        
+        return;
+      }
+
+      // Update Number & Trigger Animation
+      numEl.textContent = n;
+      numEl.classList.remove('pulse');
+      void numEl.offsetWidth; // Trigger reflow to restart CSS animation
+      numEl.classList.add('pulse');
+      
+    }, 1000); // 1-second intervals
+  })();
+</script>
+</body>
+</html>

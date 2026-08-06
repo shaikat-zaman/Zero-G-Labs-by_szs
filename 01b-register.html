@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Subject Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+    --cyan: #26e8f5; --cyan-soft: #7ff2fb; --cyan-dim: #0e4650; --cyan-glow: rgba(38, 232, 245, .55);
+    --white: #eaf6f7; --text-dim: #5c7c80; --text-mid: #93b3b6;
+    --danger: #ff4d4f; --danger-glow: rgba(255, 77, 79, .5);
+    --font-display: 'Orbitron', sans-serif; --font-body: 'Inter', sans-serif;
+    --pad: clamp(18px, 4vmin, 56px);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #000; font-family: var(--font-body); height: 100%; -webkit-font-smoothing: antialiased; }
+
+  .app {
+    position: relative; min-height: 100vh; min-height: 100dvh; width: 100%;
+    display: flex; flex-direction: column;
+    background: linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px, var(--bg);
+    padding: var(--pad);
+    padding-top: max(var(--pad), env(safe-area-inset-top));
+    padding-right: max(var(--pad), env(safe-area-inset-right));
+    padding-bottom: max(var(--pad), env(safe-area-inset-bottom));
+    padding-left: max(var(--pad), env(safe-area-inset-left));
+    overflow: hidden;
+  }
+  .frame-corner { position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px); border: 2px solid var(--cyan); opacity: .35; pointer-events: none; }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* Topbar: brand + cancel must always stay on one row, at any width */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 18px);
+    flex: none;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800; font-size: clamp(14px, 2.4vmin, 24px);
+    letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+  }
+
+  /* ফিক্স করা কন্টেন্ট পজিশন: সেন্টার থেকে ফ্লেক্স-স্টার্ট করে প্যাডিং দেওয়া হয়েছে */
+  .content { 
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: flex-start; /* উপরের দিকে টেনে নিয়ে যাওয়ার জন্য */
+    padding-top: clamp(40px, 8vh, 80px); /* উপরের লাইনের সাথে পারফেক্ট দূরত্ব */
+    text-align: center; animation: screenIn .4s ease; width: 100%; max-width: 440px; margin: 0 auto; 
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ফিক্স করা হেডিং: white-space: nowrap দেওয়া হয়েছে এক লাইনে রাখার জন্য */
+  .heading {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(17px, 4.5vw, 28px); /* ফন্ট সাইজ ব্যালেন্স করা হয়েছে */
+    letter-spacing: 1px; color: var(--cyan); 
+    margin: 0 0 clamp(30px, 5vh, 40px); /* নিচের ফর্মের সাথে দূরত্ব */
+    text-shadow: 0 0 16px var(--cyan-glow);
+    white-space: nowrap; /* এক লাইনে ব্রেক না করার জন্য */
+  }
+
+  /* Forms */
+  .input-group { width: 100%; display: flex; flex-direction: column; text-align: left; margin-bottom: clamp(16px, 2.5vmin, 24px); }
+  .input-label { font-family: var(--font-display); font-size: clamp(9px, 1.3vmin, 12px); color: var(--cyan-soft); letter-spacing: 2px; margin-bottom: 8px; }
+  .sci-input {
+    width: 100%;
+    background: rgba(38, 232, 245, 0.04); border: 1.5px solid var(--cyan-dim); border-radius: 8px;
+    padding: clamp(14px, 2vmin, 18px); color: var(--white); font-family: var(--font-display);
+    font-size: clamp(13px, 1.8vmin, 16px); letter-spacing: 1.5px; outline: none; transition: all 0.2s ease;
+  }
+  .sci-input:focus { border-color: var(--cyan); box-shadow: 0 0 16px var(--cyan-glow); background: rgba(38, 232, 245, 0.08); }
+  .sci-input::placeholder { color: var(--text-dim); }
+
+  .btn-next {
+    width: 100%; margin-top: clamp(16px, 3vmin, 24px); background: var(--cyan); color: #002226;
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(13px, 1.8vmin, 16px); letter-spacing: 2px;
+    border: none; border-radius: 8px; padding: clamp(16px, 2.2vmin, 20px); cursor: pointer;
+    box-shadow: 0 0 24px var(--cyan-glow); transition: filter .15s ease, transform .1s ease;
+  }
+  .btn-next:hover { filter: brightness(1.08); box-shadow: 0 0 34px var(--cyan-glow); }
+  .btn-next:active { transform: scale(.98); }
+  .btn-next:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+
+  .statusbar { flex: none; margin-top: clamp(10px, 2vmin, 20px); padding-top: clamp(10px, 2vmin, 18px); border-top: 1px solid var(--grid-line-strong); font-family: var(--font-display); font-weight: 500; font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim); text-align: center; }
+
+  /* Cancel / abort button — sized to its own content, never stretches full-width */
+  .btn-cancel {
+    flex: none; width: auto;
+    background: rgba(255, 77, 79, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px);
+    letter-spacing: 1.5px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-cancel:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-cancel:active { transform: scale(0.95); }
+  .btn-cancel:focus-visible { outline: 2px solid var(--danger); outline-offset: 3px; }
+
+  /* Extra safety margin on very narrow devices */
+  @media (max-width: 340px) {
+    .brand { letter-spacing: 1.5px; }
+  }
+</style>
+</head>
+<body data-page="register">
+
+<div class="app">
+  <span class="frame-corner tl"></span><span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span><span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-cancel" onclick="window.location.href='01-idle.html'">CANCEL</button>
+  </header>
+
+  <div class="content">
+    <h1 class="heading">// SUBJECT IDENTIFICATION //</h1>
+
+    <div class="input-group">
+      <label class="input-label" for="input-name">EXPLORER NAME</label>
+      <input type="text" id="input-name" name="explorerName" class="sci-input" placeholder="ENTER CODENAME / NAME" autocomplete="name">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label" for="input-phone">COMMUNICATION ID (MOBILE)</label>
+      <input type="tel" id="input-phone" name="explorerPhone" class="sci-input" placeholder="ENTER MOBILE NUMBER" autocomplete="tel" inputmode="tel">
+    </div>
+
+    <button type="button" class="btn-next" id="btn-register">INITIALIZE PROFILE</button>
+  </div>
+
+  <footer class="statusbar">SYS.STATUS: AWAITING_INPUT // DB_CONNECTION: SECURE</footer>
+</div>
+
+<script>
+  document.getElementById('btn-register').addEventListener('click', function () {
+    var nameVal = document.getElementById('input-name').value.trim();
+    var phoneVal = document.getElementById('input-phone').value.trim();
+
+    localStorage.setItem('explorerName', nameVal || 'UNKNOWN EXPLORER');
+    localStorage.setItem('explorerPhone', phoneVal || 'N/A');
+
+    window.location.href = '02-welcome.html';
+  });
+</script>
+</body>
+</html>

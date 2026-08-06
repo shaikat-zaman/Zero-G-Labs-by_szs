@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --violet: #a06bff;
+    --violet-glow: rgba(160, 107, 255, .6);
+
+    --green: #3dffa4;
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+    
+    /* নতুন কালার ভেরিয়েবল (নাম এবং ক্যানসেল বাটনের জন্য) */
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, 0.6);
+    --danger: #ff4d4f;
+    --danger-glow: rgba(255, 77, 79, 0.5);
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Fluid scaling for all screens */
+    --pad: clamp(18px, 4vmin, 56px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+
+  /* Stop animation for OS "Reduce motion" preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    min-height: 100vh; min-height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar (আপডেট করা হয়েছে) ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 18px);
+    flex: none;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px);
+    letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+  }
+
+  /* ---------- Cancel Button ---------- */
+  .btn-cancel {
+    flex: none; width: auto;
+    background: rgba(255, 77, 79, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px);
+    letter-spacing: 1.5px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-cancel:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-cancel:active { transform: scale(0.95); }
+  .btn-cancel:focus-visible { outline: 2px solid var(--danger); outline-offset: 3px; }
+
+  /* ---------- Content ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; gap: clamp(6px, 1.2vmin, 12px);
+    min-height: 0;
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .heading {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(20px, 3.8vmin, 42px); letter-spacing: 1px; color: var(--cyan);
+    margin: 0; text-shadow: 0 0 16px var(--cyan-glow); 
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* নতুন ক্লাস: নামটিকে আলাদা কালার দেওয়ার জন্য */
+  .highlight-name {
+    color: var(--amber);
+    text-shadow: 0 0 16px var(--amber-glow);
+  }
+
+  .subhead {
+    font-family: var(--font-body); font-weight: 400;
+    font-size: clamp(12px, 1.9vmin, 19px); color: var(--text-mid); 
+    margin: clamp(4px, 1vmin, 8px) 0 0; line-height: 1.5;
+    max-width: clamp(280px, 45vw, 600px);
+  }
+
+  /* ---------- Atom / orbit ---------- */
+  .orbit { margin: clamp(8px, 1.5vmin, 24px) 0 clamp(16px, 2.5vmin, 32px); }
+  .orbit-svg {
+    display: block;
+    width: clamp(180px, min(32vw, 40vh), 400px);
+    height: clamp(180px, min(32vw, 40vh), 400px);
+  }
+
+  .bezel-ring { fill: none; stroke: var(--cyan); stroke-width: 1.4; opacity: .8; }
+  .btick { stroke: var(--cyan-soft); stroke-width: 1.4; opacity: .6; }
+  .orbit-line { fill: none; stroke: var(--violet); stroke-width: 1.6; opacity: .8; filter: drop-shadow(0 0 5px var(--violet-glow)); }
+  .core-glow { fill: url(#coreGlow); }
+  .core { fill: #ffffff; filter: drop-shadow(0 0 8px var(--violet-glow)) drop-shadow(0 0 16px #6a3bd6); }
+
+  /* Spin controls */
+  .spin-bezel, .spin-a, .spin-b, .core-pulse { transform-box: view-box; transform-origin: 150px 150px; }
+  .spin-bezel { animation: spin 80s linear infinite; }          
+  .spin-a { animation: spin 8s linear infinite; }               
+  .spin-b { animation: spin 11s linear infinite reverse; }      
+  .core-pulse { animation: corePulse 2.4s ease-in-out infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes corePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .75; transform: scale(1.12); } }
+
+  /* ---------- Mode buttons ---------- */
+  .button-group {
+    display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 1.8vmin, 18px);
+    width: 100%;
+  }
+  
+  .btn-mode {
+    width: 100%; max-width: clamp(260px, 35vw, 460px);
+    border-radius: 14px; padding: clamp(14px, 2vmin, 24px) 16px; cursor: pointer; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: filter .15s ease, transform .1s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-mode:active { transform: scale(.98); }
+  .btn-mode:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+  
+  .btn-mode .title { font-family: var(--font-display); font-weight: 700; font-size: clamp(15px, 2vmin, 22px); letter-spacing: 1.5px; }
+  .btn-mode .note { font-family: var(--font-body); font-weight: 600; font-size: clamp(10px, 1.3vmin, 13px); letter-spacing: .2px; }
+
+  .btn-normal { background: var(--cyan); color: #002226; box-shadow: 0 0 24px var(--cyan-glow); border: none; }
+  .btn-normal:hover { filter: brightness(1.08); box-shadow: 0 0 38px var(--cyan-glow); }
+  .btn-normal .note { color: #023b41; }
+
+  .btn-easy { background: rgba(38, 232, 245, .05); border: 1.5px solid var(--cyan); color: var(--cyan); }
+  .btn-easy:hover { background: rgba(38, 232, 245, .12); }
+  .btn-easy .note { color: var(--green); }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vmin, 20px); padding-top: clamp(10px, 2vmin, 18px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body data-page="welcome">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <!-- Step2 রিমুভ করে Cancel বাটন অ্যাড করা হয়েছে -->
+    <button type="button" class="btn-cancel" onclick="window.location.href='01-idle.html'">CANCEL</button>
+  </header>
+
+  <div class="content">
+    <h1 class="heading" id="welcome-heading"></h1> <!-- JS দিয়ে ইনজেক্ট করা হবে -->
+    <p class="subhead">Select your calibration mode to begin the spatial test.</p>
+
+    <div class="orbit">
+      <svg viewBox="0 0 300 300" class="orbit-svg" role="img" aria-label="Calibration orbit">
+        <defs>
+          <radialGradient id="coreGlow">
+            <stop offset="0"   stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="0.3" stop-color="#c9a3ff" stop-opacity="0.9"/>
+            <stop offset="0.7" stop-color="#7b45e0" stop-opacity="0.35"/>
+            <stop offset="1"   stop-color="#7b45e0" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <g class="spin-bezel">
+          <circle class="bezel-ring" cx="150" cy="150" r="108"/>
+          <g id="bezel-ticks"></g>
+        </g>
+
+        <g class="spin-a"><ellipse class="orbit-line" cx="150" cy="150" rx="96" ry="34"/></g>
+        <g class="spin-b"><ellipse class="orbit-line" cx="150" cy="150" rx="96" ry="34"/></g>
+
+        <g class="core-pulse">
+          <circle class="core-glow" cx="150" cy="150" r="30"/>
+          <circle class="core" cx="150" cy="150" r="7"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-mode btn-normal" id="btn-mode-normal">
+        <span class="title">NORMAL MODE</span>
+        <span class="note">&#9888; Normal mode includes physical platform tilting.</span>
+      </button>
+      <button class="btn-mode btn-easy" id="btn-mode-easy">
+        <span class="title">EASY MODE (STATIC)</span>
+        <span class="note">&#9432; Easy mode tests visual disorientation only.</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="statusbar">SYS.STATUS: STANDBY // GYRO_CALIBRATED_99.8% // AWAITING_SUBJECT</footer>
+</div>
+
+<!-- script.js ফাইলটিকে যুক্ত করা হয়েছে -->
+<script src="script.js"></script>
+
+<script>
+  // Outer ring ticks
+  (function () {
+    const NS = 'http://www.w3.org/2000/svg';
+    const g = document.getElementById('bezel-ticks');
+    const cx = 150, cy = 150, rOut = 108, rIn = 99, count = 36;
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2;
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', (cx + rOut * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y1', (cy + rOut * Math.sin(a)).toFixed(1));
+      ln.setAttribute('x2', (cx + rIn  * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y2', (cy + rIn  * Math.sin(a)).toFixed(1));
+      ln.setAttribute('class', 'btick');
+      g.appendChild(ln);
+    }
+  })();
+
+  // 1. Local Storage থেকে নাম পড়া
+  let userName = localStorage.getItem('explorerName');
+
+  // 2. নাম প্রসেস করা
+  if (!userName || userName.trim() === '' || userName === 'UNKNOWN EXPLORER') {
+    userName = 'EXPLORER';
+  } else {
+    userName = userName.toUpperCase().trim();
+  }
+
+  // 3. DOM-এ নাম বসানো (innerHTML ব্যবহার করা হয়েছে যাতে HTML ট্যাগ কাজ করে)
+  document.getElementById('welcome-heading').innerHTML = '// WELCOME, <span class="highlight-name">' + userName + '</span> //';
+  
+</script>
+</body>
+</html>

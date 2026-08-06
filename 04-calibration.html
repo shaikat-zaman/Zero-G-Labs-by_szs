@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Calibration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .5);
+    
+    --green: #3dffa4;
+    --green-glow: rgba(61, 255, 164, .45);
+
+    --danger: #ff4d4f;
+    --danger-glow: rgba(255, 77, 79, .5);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --pad: clamp(16px, 4vmin, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+    overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ করা হয়েছে */
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    height: 100vh; height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px; border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 16px); flex: none; z-index: 10;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px); letter-spacing: 3px; color: var(--white);
+    text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap;
+  }
+  .btn-cancel {
+    flex: none; width: auto;
+    background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
+    color: var(--danger); font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
+    padding: 6px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-cancel:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+
+  /* ---------- Content Container ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: flex-start; text-align: center;
+    padding-top: clamp(10px, 2vh, 20px);
+    width: 100%; position: relative;
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .heading {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(16px, 3.5vmin, 32px); letter-spacing: 1px;
+    color: var(--amber); margin: 0 0 8px 0; text-shadow: 0 0 16px var(--amber-glow);
+  }
+
+  /* User Instruction Blinking Text */
+  .instruction {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(10px, 2vmin, 15px); color: var(--amber);
+    letter-spacing: 2px; margin-bottom: clamp(10px, 2vh, 20px);
+    animation: blinkText 1.5s infinite;
+  }
+  @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .instruction.success { color: var(--green); animation: none; text-shadow: 0 0 10px var(--green-glow); }
+
+  /* ---------- Main Display Area (HUD) ---------- */
+  .main-display {
+    position: relative; flex: 1; width: 100%; 
+    display: flex; justify-content: center; align-items: center;
+    min-height: 0; 
+  }
+
+  /* ---------- Side Panels (Left & Right Boxes) ---------- */
+  .hud-panel {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: clamp(130px, 22vw, 240px);
+    background: rgba(0, 10, 12, 0.6); border: 1px solid var(--cyan-dim);
+    border-radius: 8px; display: flex; flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); z-index: 5; overflow: hidden;
+  }
+  .hud-panel.left { left: clamp(10px, 4vw, 40px); border-left: 3px solid var(--cyan); }
+  .hud-panel.right { right: clamp(10px, 4vw, 40px); border-right: 3px solid var(--amber); }
+
+  .hud-header {
+    background: rgba(38, 232, 245, 0.1); padding: clamp(6px, 1vmin, 10px);
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(9px, 1.2vmin, 12px); color: var(--cyan);
+    letter-spacing: 1.5px; border-bottom: 1px solid var(--cyan-dim);
+    text-align: left;
+  }
+  .hud-panel.right .hud-header {
+    background: rgba(255, 176, 32, 0.1); color: var(--amber);
+    border-bottom-color: rgba(255, 176, 32, 0.3); text-align: right;
+  }
+
+  .hud-body {
+    padding: clamp(8px, 1.5vmin, 12px);
+    height: clamp(130px, 25vh, 200px);
+    display: flex; flex-direction: column;
+  }
+
+  /* Terminal CSS */
+  .term-wrapper {
+    flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 20%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%);
+  }
+  .term-line {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(8px, 1.1vmin, 11px); color: var(--cyan-dim);
+    line-height: 1.5; white-space: nowrap; text-align: left;
+  }
+  .term-line .hex { color: var(--text-dim); margin-right: 4px; }
+  .term-line .warn { color: var(--amber); font-weight: bold; margin-left: 4px; }
+
+  /* Metrics CSS */
+  .metric-list {
+    flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 4px;
+  }
+  .metric-item {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1); padding-bottom: 4px;
+  }
+  .metric-label { font-family: var(--font-display); color: var(--text-dim); font-size: clamp(8px, 1.1vmin, 10px); letter-spacing: 1px; }
+  .metric-value { font-family: var(--font-display); color: var(--white); font-weight: 700; font-size: clamp(9px, 1.3vmin, 12px); }
+  .val-amber { color: var(--amber); text-shadow: 0 0 6px var(--amber-glow); }
+  .val-cyan { color: var(--cyan); text-shadow: 0 0 6px var(--cyan-glow); }
+
+  /* মোবাইল স্ক্রিনের জন্য প্যানেলগুলোকে অ্যাডজাস্ট করা হয়েছে */
+  @media (max-width: 650px) {
+    .hud-panel {
+      top: 0; transform: none; width: 45%; height: clamp(90px, 15vh, 120px);
+    }
+    .hud-panel.left { left: 10px; }
+    .hud-panel.right { right: 10px; }
+    .hud-body { height: 100%; padding: 6px; }
+    .term-wrapper { mask-image: none; -webkit-mask-image: none; }
+    .metric-item { border-bottom: none; padding-bottom: 0; }
+  }
+
+  /* ---------- Figure & Scan Animation ---------- */
+  .figure-wrap {
+    position: relative; height: 100%; max-height: 50vh;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2;
+  }
+  @media (max-width: 650px) {
+    .figure-wrap { margin-top: clamp(100px, 18vh, 140px); max-height: 40vh; }
+  }
+
+  .figure-svg { height: 100%; max-height: 380px; width: auto; display: block; }
+  .bracket { fill: none; stroke: var(--cyan); stroke-width: 1.4; opacity: .35; stroke-linecap: round; }
+  .body-line { fill: none; stroke: var(--cyan); stroke-width: 1.6; opacity: .85; stroke-linejoin: round; stroke-linecap: round; }
+  .joint { fill: var(--cyan); filter: drop-shadow(0 0 5px var(--cyan-glow)); }
+  
+  .scan-line {
+    stroke: var(--cyan-soft); stroke-width: 1.6; filter: drop-shadow(0 0 7px var(--cyan-glow));
+    animation: scanMove 2s ease-in-out infinite;
+  }
+  @keyframes scanMove {
+    0% { transform: translateY(0); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(320px); opacity: 0; }
+  }
+
+  /* ---------- Progress Bar & Checkmark Area ---------- */
+  .status-footer {
+    width: 100%; max-width: 450px; height: 80px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin-top: clamp(10px, 2vh, 20px); z-index: 10;
+  }
+
+  .progress-container {
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: opacity 0.3s ease;
+  }
+  .progress-bar-wrap {
+    width: 90%; height: 8px; background: rgba(38, 232, 245, 0.1);
+    border: 1px solid var(--cyan-dim); border-radius: 6px; overflow: hidden;
+    position: relative; box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
+  }
+  .progress-fill {
+    height: 100%; width: 0%; background: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan-glow);
+    transition: width 0.1s linear;
+  }
+  .progress-text {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(12px, 2vmin, 16px); color: var(--cyan); letter-spacing: 2px;
+  }
+
+  /* Check ring (Hidden by default) */
+  .checkring {
+    display: none; opacity: 0; transform: scale(0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .checkring.active { display: flex; flex-direction: column; align-items: center; opacity: 1; transform: scale(1); }
+  .checkring svg { width: clamp(50px, 8vmin, 70px); height: clamp(50px, 8vmin, 70px); }
+  .cr-circle { fill: none; stroke: var(--green); stroke-width: 2.5; }
+  .cr-mark {
+    fill: none; stroke: var(--green); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round;
+    filter: drop-shadow(0 0 8px var(--green-glow));
+    stroke-dasharray: 60; stroke-dashoffset: 60; 
+  }
+  .checkring.active .cr-mark { animation: drawCheck 0.4s ease 0.2s forwards; }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vh, 20px); padding-top: clamp(10px, 2vmin, 14px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center; z-index: 10;
+  }
+</style>
+</head>
+<body data-page="calibration">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-cancel" onclick="window.location.href='01-idle.html'">CANCEL</button>
+  </header>
+
+  <div class="content">
+    <h1 class="heading">// SYSTEM CALIBRATION //</h1>
+    <div class="instruction" id="instruction-text">MAINTAIN POSTURE // DO NOT MOVE</div>
+
+    <div class="main-display">
+      
+      <!-- LEFT BOX: Terminal Code -->
+      <div class="hud-panel left">
+        <div class="hud-header">[ SYS_LOG_FEED ]</div>
+        <div class="hud-body">
+          <div class="term-wrapper" id="term-box"></div>
+        </div>
+      </div>
+
+      <!-- CENTER: Figure -->
+      <div class="figure-wrap">
+        <svg viewBox="0 0 260 500" class="figure-svg" role="img" aria-label="Subject body scan in progress">
+          <path class="bracket" d="M18 108 L18 84 L42 84"/>
+          <path class="bracket" d="M242 108 L242 84 L218 84"/>
+          <path class="bracket" d="M18 452 L18 476 L42 476"/>
+          <path class="bracket" d="M242 452 L242 476 L218 476"/>
+
+          <ellipse class="body-line" cx="130" cy="52" rx="33" ry="37"/>
+
+          <path id="body-half" class="body-line" d="
+            M130,84 L146,90 C150,102 175,108 186,120 C193,145 196,180 195,220
+            C194,262 191,292 185,314 C184,320 182,323 176,322 C171,321 170,314 171,306
+            C173,268 177,240 178,212 C179,186 174,160 166,150 C161,176 155,206 150,240
+            C158,257 167,270 171,288 C169,332 164,384 156,430 C154,443 153,449 152,454
+            C160,458 167,461 171,463 C165,470 156,470 149,468 C144,460 140,456 138,449
+            C134,400 131,352 130,300"/>
+          <use href="#body-half" transform="matrix(-1 0 0 1 260 0)"/>
+
+          <circle class="joint" cx="130" cy="30"  r="2.6"/>
+          <circle class="joint" cx="92"  cy="122" r="2.6"/>
+          <circle class="joint" cx="168" cy="122" r="2.6"/>
+          <circle class="joint" cx="130" cy="150" r="2.6"/>
+          <circle class="joint" cx="104" cy="286" r="2.6"/>
+          <circle class="joint" cx="156" cy="286" r="2.6"/>
+          <circle class="joint" cx="118" cy="392" r="2.6"/>
+          <circle class="joint" cx="142" cy="392" r="2.6"/>
+
+          <line class="scan-line" id="scan-line" x1="40" y1="150" x2="220" y2="150"/>
+        </svg>
+      </div>
+
+      <!-- RIGHT BOX: Biometrics -->
+      <div class="hud-panel right">
+        <div class="hud-header">[ BIO_METRICS ]</div>
+        <div class="hud-body">
+          <div class="metric-list">
+            <div class="metric-item"><span class="metric-label">SUBJECT</span><span class="metric-value val-cyan" id="subj-name">EXPLORER</span></div>
+            <div class="metric-item"><span class="metric-label">HEIGHT</span><span class="metric-value">178 CM</span></div>
+            <div class="metric-item"><span class="metric-label">MASS</span><span class="metric-value">74.2 KG</span></div>
+            <div class="metric-item"><span class="metric-label">BONE_DENS</span><span class="metric-value">OPTIMAL</span></div>
+            <div class="metric-item"><span class="metric-label">HEART_RATE</span><span class="metric-value val-amber" id="bpm-val">72 BPM</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Dynamic Footer Area: Progress Bar -> Checkmark -->
+    <div class="status-footer">
+      <div class="progress-container" id="prog-container">
+        <div class="progress-text">CALIBRATING... <span id="calib-pct">0</span>%</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-fill" id="calib-fill"></div>
+        </div>
+      </div>
+
+      <div class="checkring" id="success-ring">
+        <svg viewBox="0 0 90 90">
+          <circle class="cr-circle" cx="45" cy="45" r="40"/>
+          <path class="cr-mark" d="M28 46 l12 12 24 -24"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <footer class="statusbar" id="sys-status">SYS.STATUS: CALIBRATING // AWAITING_DATA // SENSORS_LOCKED</footer>
+</div>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
+
+    // 0. Get Name from Storage
+    var explorerName = localStorage.getItem('explorerName');
+    if (!explorerName || explorerName.trim() === '' || explorerName === 'UNKNOWN EXPLORER') {
+      explorerName = 'EXPLORER';
+    }
+    document.getElementById('subj-name').textContent = explorerName.toUpperCase().substring(0, 10);
+
+    // 1. Fake Terminal Logic (Left Box)
+    var termBox = document.getElementById('term-box');
+    var commands = [
+      "CALC_VECTORS()", "MEM_ALLOC_SYS", "SYNC_CORTEX...", 
+      "ANALYZE_MASS", "GYRO_FEED_CH4", "ALIGN_POSTURE", 
+      "CHK_GRAV_PULL", "ESTIMATE_Z_AXIS", "DATA_STREAM_UP"
+    ];
+    function addTermLine() {
+      var div = document.createElement('div');
+      div.className = 'term-line';
+      var hex = "0x" + Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
+      var cmd = commands[Math.floor(Math.random() * commands.length)];
+      var suffix = Math.random() > 0.85 ? "<span class='warn'>[WARN]</span>" : "";
+      
+      div.innerHTML = "<span class='hex'>" + hex + "</span> " + cmd + suffix;
+      termBox.appendChild(div);
+      if(termBox.children.length > 8) termBox.removeChild(termBox.firstChild);
+    }
+    var termInterval = setInterval(addTermLine, 150);
+
+    // 2. Animated Heart Rate (Right Box)
+    var bpmEl = document.getElementById('bpm-val');
+    var bpmInterval = setInterval(function() {
+      var baseBpm = 75;
+      var fluctuation = Math.floor(Math.random() * 7) - 3; // -3 to +3
+      bpmEl.textContent = (baseBpm + fluctuation) + ' BPM';
+    }, 800);
+
+    // 3. Exact 6-Second Timing Logic (5s loading + 1s checkmark)
+    var pctText = document.getElementById('calib-pct');
+    var pctFill = document.getElementById('calib-fill');
+    var progContainer = document.getElementById('prog-container');
+    var successRing = document.getElementById('success-ring');
+    var scanLine = document.getElementById('scan-line');
+    var instruction = document.getElementById('instruction-text');
+    var statusbar = document.getElementById('sys-status');
+
+    var pct = 0;
+    var totalLoadDuration = 5000; // 5 seconds for progress bar
+    var intervalTime = 40; // Update every 40ms
+    var increment = 100 / (totalLoadDuration / intervalTime);
+
+    var counter = setInterval(function () {
+      pct += increment;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(counter);
+        triggerSuccess();
+      }
+      // Update UI
+      pctText.textContent = Math.floor(pct);
+      pctFill.style.width = pct + '%';
+      
+    }, intervalTime);
+
+    // 4. Success State & Redirect
+    function triggerSuccess() {
+      // Stop hacking & heart rate animations
+      clearInterval(termInterval);
+      clearInterval(bpmInterval);
+      scanLine.style.display = 'none'; // Hide vertical scan line
+      
+      // Change UI Texts
+      instruction.textContent = "CALIBRATION COMPLETE";
+      instruction.classList.add('success');
+      statusbar.textContent = "SYS.STATUS: READY // PROCEEDING_TO_SIMULATION";
+
+      // Swap Progress bar for Green Checkmark
+      progContainer.style.display = 'none';
+      successRing.classList.add('active');
+
+      // Wait exactly 1 second (making total time 6 seconds), then go to next page
+      setTimeout(function () {
+        window.location.href = '05-countdown.html?mode=' + mode;
+      }, 1000);
+    }
+  })();
+</script>
+</body>
+</html>

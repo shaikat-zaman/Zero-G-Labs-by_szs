@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Visual Simulation (Easy Mode)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .6);
+
+    --green: #3dffa4;
+    --green-glow: rgba(61, 255, 164, .55);
+
+    --danger: #ff4d4f;
+    --danger-glow: rgba(255, 77, 79, .5);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Fluid scaling for all screens */
+    --pad: clamp(16px, 4vmin, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+    overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    height: 100vh; height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  /* Corner HUD brackets */
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px; border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 16px); flex: none; z-index: 10;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px); letter-spacing: 3px; color: var(--white);
+    text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap;
+  }
+  
+  .btn-abort {
+    flex: none; width: auto; background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
+    color: var(--danger); font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
+    padding: 6px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-abort:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-abort:active { transform: scale(0.95); }
+
+  /* ---------- Content Container ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center; 
+    justify-content: space-between; width: 100%; max-width: 700px; margin: 0 auto;
+    padding-top: clamp(10px, 2vh, 20px);
+    animation: screenIn .4s ease;
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Heading ---------- */
+  .heading {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(18px, 3.5vmin, 32px); letter-spacing: 2px;
+    color: var(--green); text-align: center; text-shadow: 0 0 16px var(--green-glow);
+    margin: 0; flex: none;
+  }
+
+  /* ---------- Radar Area ---------- */
+  .radar-wrap {
+    flex: 1; display: flex; justify-content: center; align-items: center;
+    width: 100%; min-height: 0; margin: clamp(10px, 2vh, 20px) 0;
+  }
+  .radar-svg { 
+    height: 100%; max-height: clamp(220px, 45vh, 400px); 
+    width: auto; display: block; 
+  }
+
+  .r-ring { fill: none; stroke: var(--cyan); }
+  .r-ring--outer { stroke-width: 1.4; opacity: .8; }
+  .r-ring--mid { stroke-width: 1.1; opacity: .5; }
+  .r-ring--inner { stroke-width: 1.1; opacity: .4; }
+  .r-tick { stroke: var(--cyan-soft); stroke-width: 1; opacity: .55; }
+  .r-cross { stroke: var(--cyan); stroke-width: 1.2; opacity: .75; }
+  .r-arrow { fill: var(--cyan-soft); opacity: .9; }
+  .r-center { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); animation: pulseDot 1.9s ease-in-out infinite; }
+  @keyframes pulseDot { 0%, 100% { r: 3.2; opacity: 1; } 50% { r: 4.6; opacity: .6; } }
+
+  .cog-dot { fill: var(--green); filter: drop-shadow(0 0 10px var(--green-glow)); }
+  .cog-label {
+    font-family: var(--font-display); font-weight: 600; font-size: 9px; letter-spacing: 2px;
+    fill: var(--white); text-anchor: middle;
+  }
+
+  /* ---------- HUD Dashboard ---------- */
+  .hud-dashboard {
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(10px, 2vw, 24px); width: 100%; flex: none;
+    margin-bottom: clamp(16px, 3vh, 30px);
+  }
+
+  .stat-box {
+    position: relative; flex: 1; max-width: 140px; 
+    padding: clamp(10px, 1.8vmin, 16px) 5px; text-align: center;
+    border: 1px solid var(--cyan-dim); border-radius: 6px; background: rgba(38, 232, 245, .03);
+  }
+  .stat-box::before, .stat-box::after {
+    content: ""; position: absolute; width: 8px; height: 8px; border-color: var(--cyan); opacity: .75;
+  }
+  .stat-box::before { top: -1px; left: -1px; border-top: 1.5px solid var(--cyan); border-left: 1.5px solid var(--cyan); }
+  .stat-box::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid var(--cyan); border-right: 1.5px solid var(--cyan); }
+  
+  .stat-label {
+    font-family: var(--font-display); font-weight: 500; 
+    font-size: clamp(8px, 1.2vmin, 10px); letter-spacing: 2px;
+    color: var(--text-dim); margin-bottom: clamp(4px, 1vmin, 8px);
+  }
+  .stat-value {
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(14px, 2.2vmin, 20px); letter-spacing: 1px;
+    color: var(--green); text-shadow: 0 0 10px var(--green-glow); /* Easy mode = locked/stable */
+  }
+
+  .balance-pill {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(61, 255, 164, 0.05); border: 1.5px solid var(--green); border-radius: 12px; 
+    padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 30px);
+    box-shadow: inset 0 0 16px rgba(61, 255, 164, 0.1), 0 0 20px var(--green-glow);
+    min-width: 140px;
+  }
+  .balance-label { font-family: var(--font-display); font-weight: 600; font-size: clamp(9px, 1.2vmin, 11px); color: var(--green); letter-spacing: 2px; margin-bottom: 4px; }
+  .balance-value { font-family: var(--font-display); font-weight: 800; font-size: clamp(20px, 3.5vmin, 28px); color: var(--white); text-shadow: 0 0 12px var(--green-glow); }
+
+  /* ---------- Emergency stop Button ---------- */
+  .estop-row { 
+    display: flex; justify-content: center; width: 100%; flex: none;
+    margin-bottom: clamp(10px, 2vh, 20px);
+  }
+  .btn-estop {
+    width: 100%; max-width: 400px;
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(11px, 1.6vmin, 15px); letter-spacing: 2px;
+    color: #3a0a0a; background: var(--danger); border: none; border-radius: 8px;
+    padding: clamp(14px, 2vmin, 18px); cursor: pointer; white-space: nowrap;
+    box-shadow: 0 0 20px var(--danger-glow);
+    transition: filter .15s ease, transform .1s ease, background .15s ease, color .15s ease;
+    animation: estopGlow 2.4s ease-in-out infinite;
+  }
+  .btn-estop:hover { filter: brightness(1.1); }
+  .btn-estop:active { transform: scale(.97); }
+  .btn-estop:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+  @keyframes estopGlow { 0%, 100% { box-shadow: 0 0 16px var(--danger-glow); } 50% { box-shadow: 0 0 28px var(--danger-glow); } }
+  
+  .btn-estop.halted { background: var(--text-dim); color: #0a1516; box-shadow: none; animation: none; }
+  .btn-estop:disabled { opacity: .7; cursor: not-allowed; }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vh, 20px); padding-top: clamp(10px, 2vmin, 14px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center; z-index: 10;
+  }
+</style>
+</head>
+<body data-page="easy-mode">
+
+<div class="app">
+
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-abort" onclick="window.location.href='01-idle.html'">ABORT</button>
+  </header>
+
+  <div class="content">
+    
+    <h1 class="heading">// VISUAL SIMULATION //</h1>
+
+    <div class="radar-wrap">
+      <svg viewBox="0 0 300 300" class="radar-svg" role="img" aria-label="Static balance radar, platform locked">
+        <!-- ring system -->
+        <circle class="r-ring r-ring--outer" cx="150" cy="150" r="108"/>
+        <circle class="r-ring r-ring--mid"   cx="150" cy="150" r="80"/>
+        <circle class="r-ring r-ring--inner" cx="150" cy="150" r="50"/>
+
+        <!-- outer tick marks -->
+        <g id="radar-ticks"></g>
+
+        <!-- crosshair -->
+        <line class="r-cross" x1="150" y1="150" x2="150" y2="50"/>
+        <line class="r-cross" x1="150" y1="150" x2="150" y2="250"/>
+        <line class="r-cross" x1="150" y1="150" x2="250" y2="150"/>
+        <line class="r-cross" x1="150" y1="150" x2="50"  y2="150"/>
+
+        <polygon class="r-arrow" points="150,28 144,42 156,42"/>
+        <polygon class="r-arrow" points="150,272 144,258 156,258"/>
+        <polygon class="r-arrow" points="272,150 258,144 258,156"/>
+        <polygon class="r-arrow" points="28,150 42,144 42,156"/>
+
+        <!-- center reference -->
+        <circle class="r-center" cx="150" cy="150" r="3.2"/>
+
+        <!-- center of gravity marker — fixed at center: platform is locked -->
+        <g id="cog">
+          <text class="cog-label" x="150" y="112">C.O.G.</text>
+          <circle class="cog-dot" cx="150" cy="150" r="16"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Symmetrical Dashboard (Box - Pill - Box) -->
+    <div class="hud-dashboard">
+      <div class="stat-box">
+        <div class="stat-label">PITCH</div>
+        <div class="stat-value">00.0&deg;</div>
+      </div>
+      
+      <div class="balance-pill">
+        <span class="balance-label">BALANCE</span>
+        <!-- 100% since Easy mode is completely stable -->
+        <span class="balance-value" id="balance-val">100%</span>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">ROLL</div>
+        <div class="stat-value">00.0&deg;</div>
+      </div>
+    </div>
+
+    <div class="estop-row">
+      <button class="btn-estop" id="btn-estop">[ EMERGENCY STOP ]</button>
+    </div>
+
+  </div>
+
+  <footer class="statusbar" id="statusbar">SYS.STATUS: VISUAL_ONLY // PLATFORM_LOCKED // SUBJECT_STABLE</footer>
+</div>
+
+<script>
+  (function () {
+    var NS = 'http://www.w3.org/2000/svg';
+
+    /* outer ring tick marks */
+    var ticksG = document.getElementById('radar-ticks');
+    var cx = 150, cy = 150, rOut = 108, rIn = 101, count = 48;
+    for (var i = 0; i < count; i++) {
+      var a = (i / count) * Math.PI * 2;
+      var ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', (cx + rOut * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y1', (cy + rOut * Math.sin(a)).toFixed(1));
+      ln.setAttribute('x2', (cx + rIn  * Math.cos(a)).toFixed(1));
+      ln.setAttribute('y2', (cy + rIn  * Math.sin(a)).toFixed(1));
+      ln.setAttribute('class', 'r-tick');
+      ticksG.appendChild(ln);
+    }
+
+    var estopBtn  = document.getElementById('btn-estop');
+    var statusbar = document.getElementById('statusbar');
+    var running = true;
+
+    // Easy Mode runs for 15 seconds then goes directly to Exit page
+    var TEST_DURATION_MS = 15000;
+
+    function endTest(reason) {
+      if (!running) return;
+      running = false;
+      clearTimeout(autoFinish);
+
+      estopBtn.disabled = true;
+      estopBtn.textContent = '[ ENDING TEST... ]';
+      estopBtn.classList.add('halted');
+      statusbar.textContent = reason === 'stopped'
+        ? 'SYS.STATUS: HALTED // EMERGENCY_STOP_ENGAGED // CLOSING_SESSION'
+        : 'SYS.STATUS: VISUAL_ONLY // SESSION_COMPLETE // CLOSING_SESSION';
+
+      setTimeout(function () {
+        // সরাসরি 09-exit.html এ রিডাইরেক্ট করবে
+        window.location.href = '09-exit.html?mode=easy&reason=' + reason;
+      }, 1000);
+    }
+
+    var autoFinish = setTimeout(function () { endTest('completed'); }, TEST_DURATION_MS);
+
+    estopBtn.addEventListener('click', function () { endTest('stopped'); });
+  })();
+</script>
+</body>
+</html>

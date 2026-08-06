@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Safety Protocols</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050708;
+    --grid-line: rgba(0, 229, 255, .055);
+    --grid-line-strong: rgba(0, 229, 255, .10);
+
+    --cyan: #26e8f5;
+    --cyan-soft: #7ff2fb;
+    --cyan-dim: #0e4650;
+    --cyan-glow: rgba(38, 232, 245, .55);
+
+    --amber: #ffb020;
+    --amber-glow: rgba(255, 176, 32, .6);
+
+    --red: #ff4d4f;
+    --red-glow: rgba(255, 77, 79, .5);
+
+    --white: #eaf6f7;
+    --text-dim: #5c7c80;
+    --text-mid: #93b3b6;
+    
+    --danger: #ff4d4f;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --pad: clamp(18px, 4vmin, 56px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #000;
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+
+  /* Stop animation for OS "Reduce motion" preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Full-bleed app screen ---------- */
+  .app {
+    position: relative;
+    min-height: 100vh; min-height: 100dvh;
+    width: 100%;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
+      var(--bg);
+    padding: var(--pad);
+    overflow: hidden;
+  }
+
+  .frame-corner {
+    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
+    border: 2px solid var(--cyan); opacity: .35; pointer-events: none;
+  }
+  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--grid-line-strong);
+    padding-bottom: clamp(10px, 2vmin, 18px);
+    flex: none;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(14px, 2.4vmin, 24px);
+    letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+  }
+
+  .btn-cancel {
+    flex: none; width: auto;
+    background: rgba(255, 77, 79, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
+    padding: 6px 14px; border-radius: 4px; cursor: pointer;
+    white-space: nowrap; transition: all 0.2s ease;
+  }
+  .btn-cancel:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
+  .btn-cancel:active { transform: scale(0.95); }
+
+  /* ---------- Content Layout (আপডেট করা হয়েছে) ---------- */
+  .content {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    /* justify-content বাদ দেওয়া হয়েছে কারণ আমরা margin-auto দিয়ে ব্যালেন্স করবো */
+    text-align: center;
+    padding-top: clamp(20px, 4vh, 30px);
+    animation: screenIn .4s ease;
+    overflow-y: auto; 
+  }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* হেডিংকে উপরের দিকে ফিক্স করা হয়েছে */
+  .heading {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(20px, 3.8vmin, 42px); letter-spacing: 1px;
+    color: var(--amber); 
+    margin: 0 0 20px 0; /* উপরের বর্ডারের নিচেই থাকবে */
+    text-shadow: 0 0 16px var(--amber-glow); white-space: nowrap;
+  }
+
+  /* প্রোটোকল বক্সগুলো ঠিক মাঝখানে থাকবে */
+  .rules-grid {
+    display: flex; flex-direction: column; align-items: center;
+    gap: clamp(16px, 3vmin, 24px); width: 100%; max-width: 1100px;
+    margin: auto 0; /* এটি উপরের হেডিং এবং নিচের কনফার্ম বক্সের ঠিক মাঝখানে রাখবে */
+  }
+
+  @media (min-width: 850px) {
+    .rules-grid { flex-direction: row; justify-content: center; align-items: stretch; }
+  }
+
+  /* ---------- NEW: Protocol Boxes (প্রোটোকলগুলো বক্সে রাখা হয়েছে) ---------- */
+  .block {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    width: 100%; max-width: 330px; flex: 1;
+    background: rgba(38, 232, 245, 0.03);
+    border: 1px solid var(--cyan-dim);
+    border-radius: 12px;
+    padding: clamp(20px, 3vmin, 30px) clamp(16px, 2vmin, 24px);
+    box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  .block:hover {
+    background: rgba(38, 232, 245, 0.06);
+    border-color: rgba(38, 232, 245, 0.4);
+  }
+
+  .block-label {
+    font-family: var(--font-display); font-weight: 600; 
+    font-size: clamp(12px, 1.6vmin, 16px); letter-spacing: 2px; color: var(--cyan);
+    margin-bottom: auto; /* আইকনের উপরে স্পেস ঠিক রাখবে */
+  }
+  .block-note {
+    font-family: var(--font-body); font-weight: 500; 
+    font-size: clamp(12px, 1.5vmin, 15px); color: var(--white); 
+    margin-top: auto; max-width: 280px; line-height: 1.55;
+  }
+  
+  /* শুধুমাত্র ইমার্জেন্সি বাটনের নাম লাল হবে */
+  .text-danger {
+    color: var(--red);
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255, 77, 79, 0.5);
+  }
+
+  /* ---- Block 1 SVG ---- */
+  .feet-svg { width: clamp(130px, 18vw, 180px); height: auto; display: block; margin: 24px 0; }
+  .boot-line { fill: none; stroke: var(--cyan); stroke-width: 1.6; opacity: .85; stroke-linejoin: round; }
+  .boot-toe { fill: var(--cyan); }
+  .boot-dot { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); }
+
+  /* ---- Block 2 SVG ---- */
+  .stop-svg { width: clamp(70px, 10vw, 100px); height: clamp(70px, 10vw, 100px); margin: 24px 0; }
+  .stop-circle { fill: none; stroke: var(--red); stroke-width: 1.8; }
+  .stop-line { stroke: var(--red); stroke-width: 1.8; stroke-linecap: round; }
+
+  /* ---- Block 3 SVG ---- */
+  .estop {
+    cursor: pointer; background: none; border: none; padding: 0; display: inline-flex; 
+    transition: transform .12s ease; animation: estopGlow 2.2s ease-in-out infinite;
+    margin: 24px 0;
+  }
+  .estop:active, .estop.tap { transform: scale(.9); }
+  .estop:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 6px; }
+  .estop svg { width: clamp(54px, 8vw, 75px); height: clamp(54px, 8vw, 75px); }
+  .plus-shape { fill: var(--amber); }
+  @keyframes estopGlow { 0%, 100% { filter: drop-shadow(0 0 8px var(--amber-glow)); } 50% { filter: drop-shadow(0 0 18px var(--amber-glow)); } }
+
+  /* ---- Confirm Box (ফাঁকা জায়গা দিয়ে নিচে বসানো হয়েছে) ---- */
+  .confirm {
+    width: 100%; max-width: clamp(340px, 40vw, 500px); 
+    border: 1px solid var(--cyan-dim); border-radius: 12px; 
+    padding: clamp(14px, 2vmin, 20px); 
+    margin-top: clamp(24px, 5vh, 40px); /* বক্সের উপরে ফাঁকা জায়গা */
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+  }
+  .checkline {
+    display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.2vmin, 12px); 
+    font-family: var(--font-body); font-size: clamp(12px, 1.5vmin, 16px); 
+    color: var(--white); cursor: pointer; user-select: none; font-weight: 600;
+  }
+  .checkline input { width: clamp(15px, 2vmin, 20px); height: clamp(15px, 2vmin, 20px); accent-color: var(--cyan); cursor: pointer; }
+  
+  .btn-agree {
+    width: 100%; margin-top: clamp(12px, 2vmin, 18px); 
+    background: var(--cyan); color: #002226;
+    font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(11px, 1.6vmin, 16px); letter-spacing: 1.5px;
+    border: none; border-radius: 8px; padding: clamp(14px, 2vmin, 18px); cursor: pointer;
+    box-shadow: 0 0 20px var(--cyan-glow); transition: filter .15s ease, opacity .15s ease;
+  }
+  .btn-agree:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-agree:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+
+  /* ---------- Footer ---------- */
+  .statusbar {
+    flex: none;
+    margin-top: clamp(10px, 2vmin, 20px); padding-top: clamp(10px, 2vmin, 18px);
+    border-top: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body data-page="safety">
+
+<div class="app">
+  <span class="frame-corner tl"></span>
+  <span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span>
+  <span class="frame-corner br"></span>
+
+  <header class="topbar">
+    <span class="brand">ZERO-G LABS</span>
+    <button type="button" class="btn-cancel" onclick="window.location.href='01-idle.html'">CANCEL</button>
+  </header>
+
+  <div class="content">
+    <h1 class="heading">// SAFETY PROTOCOLS //</h1>
+
+    <div class="rules-grid">
+      <!-- Block 1 (Box) -->
+      <div class="block">
+        <div class="block-label">STAND IN THE CENTER</div>
+        <svg viewBox="0 0 244 118" class="feet-svg" role="img" aria-label="Stand with both feet on the marks">
+          <defs>
+            <g id="boot">
+              <path class="boot-line" d="M-13 -28 Q-13 -34 -6 -34 L6 -34 Q13 -34 13 -28 L13 18 Q13 34 0 34 Q-13 34 -13 18 Z"/>
+              <rect class="boot-toe" x="-10.5" y="-32" width="5.5" height="5.5" rx="1"/>
+              <rect class="boot-toe" x="-2.75" y="-32" width="5.5" height="5.5" rx="1"/>
+              <rect class="boot-toe" x="5"    y="-32" width="5.5" height="5.5" rx="1"/>
+              <circle class="boot-dot" cx="0" cy="12" r="4"/>
+            </g>
+          </defs>
+          <use href="#boot" transform="translate(96,59) rotate(-8)"/>
+          <use href="#boot" transform="translate(148,59) rotate(8)"/>
+        </svg>
+        <div class="block-note">Keep your feet firmly on the designated glowing marks.</div>
+      </div>
+
+      <!-- Block 2 (Box) -->
+      <div class="block">
+        <div class="block-label">DO NOT STEP OFF</div>
+        <svg viewBox="0 0 120 120" class="stop-svg" role="img" aria-label="Do not step off">
+          <circle class="stop-circle" cx="60" cy="60" r="45"/>
+          <line class="stop-line" x1="22" y1="60" x2="98" y2="60"/>
+        </svg>
+        <div class="block-note">Wait for the platform to completely stop before exiting.</div>
+      </div>
+
+      <!-- Block 3 (Box) -->
+      <div class="block">
+        <div class="block-label">FEELING DIZZY?</div>
+        <button class="estop" id="estop-demo" aria-label="Emergency stop demo">
+          <svg viewBox="0 0 80 80">
+            <rect class="plus-shape" x="31" y="8"  width="18" height="64" rx="4"/>
+            <rect class="plus-shape" x="8"  y="31" width="64" height="18" rx="4"/>
+          </svg>
+        </button>
+        <!-- শুধুমাত্র 'emergency stop button' লেখাটুকু লাল করা হয়েছে -->
+        <div class="block-note">Press the <span class="text-danger">emergency stop button</span> if you experience severe motion sickness.</div>
+      </div>
+    </div>
+
+    <!-- Confirm Box -->
+    <div class="confirm">
+      <label class="checkline">
+        <input type="checkbox" id="confirm-fit">
+        <span>I confirm that I am physically fit.</span>
+      </label>
+      <button class="btn-agree" id="btn-agree" disabled>[ I UNDERSTAND &amp; AGREE ]</button>
+    </div>
+  </div>
+
+  <footer class="statusbar">SYS.STATUS: AWAITING_ACKNOWLEDGEMENT // SAFETY_LOCK: ENGAGED</footer>
+</div>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
+
+    var check = document.getElementById('confirm-fit');
+    var agree = document.getElementById('btn-agree');
+    var estop = document.getElementById('estop-demo');
+
+    // Checkbox toggles Agree button state
+    check.addEventListener('change', function () { 
+      agree.disabled = !check.checked; 
+    });
+
+    // Proceed to next page
+    agree.addEventListener('click', function () {
+      if (!agree.disabled) window.location.href = '04-calibration.html?mode=' + mode;
+    });
+
+    // Tap animation
+    estop.addEventListener('click', function () {
+      estop.classList.add('tap');
+      setTimeout(function () { estop.classList.remove('tap'); }, 150);
+    });
+  })();
+</script>
+</body>
+</html>
