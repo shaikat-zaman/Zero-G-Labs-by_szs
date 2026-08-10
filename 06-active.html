@@ -31,8 +31,7 @@
     --font-display: 'Orbitron', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    /* Fluid scaling for all screens */
-    --pad: clamp(16px, 4vmin, 40px);
+    --pad: clamp(10px, 2vmin, 24px);
   }
 
   * { box-sizing: border-box; }
@@ -43,24 +42,15 @@
     overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ */
   }
 
-  /* NOTE: OS "Reduce motion" ON disables ring spin / pulse / cog drift. */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-    .cog { transition: none !important; }
-  }
-
   /* ---------- Full-bleed app screen ---------- */
   .app {
-    position: relative;
-    height: 100vh; height: 100dvh;
-    width: 100%;
+    position: relative; height: 100vh; height: 100dvh; width: 100%;
     display: flex; flex-direction: column;
     background:
       linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/26px 26px,
       var(--bg);
-    padding: var(--pad);
-    overflow: hidden;
+    padding: var(--pad); overflow: hidden;
   }
 
   /* ---------- Glitch Overlay ---------- */
@@ -70,131 +60,147 @@
     align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.1s ease;
   }
-  @supports (backdrop-filter: blur(4px)) {
-    .glitch-overlay { backdrop-filter: blur(4px); }
-  }
-  .glitch-overlay.active {
-    opacity: 1; pointer-events: all; animation: screenShake 0.3s infinite;
-  }
+  @supports (backdrop-filter: blur(4px)) { .glitch-overlay { backdrop-filter: blur(4px); } }
+  .glitch-overlay.active { opacity: 1; pointer-events: all; animation: screenShake 0.3s infinite; }
   .glitch-title {
     font-family: var(--font-display); font-size: clamp(24px, 6vw, 48px);
     color: var(--danger); text-shadow: 0 0 20px var(--danger-glow), 2px 2px 0px #000, -2px -2px 0px var(--cyan);
-    text-align: center; margin: 0; letter-spacing: 4px;
-    animation: textGlitch 0.2s infinite; padding: 0 20px;
+    text-align: center; margin: 0; letter-spacing: 4px; animation: textGlitch 0.2s infinite; padding: 0 20px;
   }
-  .glitch-sub {
-    font-family: var(--font-body); font-size: clamp(12px, 3vw, 18px); color: var(--white);
-    margin-top: 10px; letter-spacing: 2px; animation: blinkFast 0.4s infinite;
-  }
+  .glitch-sub { font-family: var(--font-body); font-size: clamp(12px, 3vw, 18px); color: var(--white); margin-top: 10px; letter-spacing: 2px; animation: blinkFast 0.4s infinite; }
 
-  @keyframes screenShake {
-    0% { transform: translate(2px, 1px) rotate(0deg); }
-    20% { transform: translate(-3px, 0px) rotate(1deg); }
-    40% { transform: translate(1px, -1px) rotate(1deg); }
-    60% { transform: translate(-3px, 1px) rotate(0deg); }
-    80% { transform: translate(-1px, -1px) rotate(1deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
-  }
-  @keyframes textGlitch {
-    0% { transform: skew(0deg); } 20% { transform: skew(-10deg); }
-    40% { transform: skew(10deg); } 60% { transform: skew(0deg); }
-    80% { transform: skew(5deg); } 100% { transform: skew(-5deg); }
-  }
+  @keyframes screenShake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+  @keyframes textGlitch { 0% { transform: skew(0deg); } 20% { transform: skew(-10deg); } 40% { transform: skew(10deg); } 60% { transform: skew(0deg); } 80% { transform: skew(5deg); } 100% { transform: skew(-5deg); } }
   @keyframes blinkFast { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
   /* Corner HUD brackets */
-  .frame-corner {
-    position: absolute; width: clamp(28px, 5vmin, 64px); height: clamp(28px, 5vmin, 64px);
-    border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10;
-  }
-  .frame-corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
-  .frame-corner.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
-  .frame-corner.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
-  .frame-corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+  .frame-corner { position: absolute; width: clamp(20px, 4vmin, 50px); height: clamp(20px, 4vmin, 50px); border: 2px solid var(--cyan); opacity: .35; pointer-events: none; z-index: 10; }
+  .frame-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+  .frame-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+  .frame-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+  .frame-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 
   /* ---------- Top bar ---------- */
   .topbar {
     display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between;
     gap: 12px; border-bottom: 1px solid var(--grid-line-strong);
-    padding-bottom: clamp(10px, 2vmin, 16px); flex: none; z-index: 10;
+    padding-bottom: clamp(6px, 1vmin, 12px); flex: none; z-index: 10;
   }
-  .brand {
-    font-family: var(--font-display); font-weight: 800;
-    font-size: clamp(14px, 2.4vmin, 24px); letter-spacing: 3px; color: var(--white);
-    text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap;
-  }
-
+  .brand { font-family: var(--font-display); font-weight: 800; font-size: clamp(12px, 2vmin, 20px); letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25); white-space: nowrap; }
   .btn-abort {
-    flex: none; width: auto; background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
+    flex: none; background: rgba(255, 77, 79, 0.1); border: 1px solid var(--danger);
     color: var(--danger); font-family: var(--font-display); font-weight: 600;
-    font-size: clamp(9px, 1.4vmin, 12px); letter-spacing: 1.5px;
-    padding: 6px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;
-    transition: all 0.2s ease;
+    font-size: clamp(8px, 1.2vmin, 11px); letter-spacing: 1.5px;
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;
   }
   .btn-abort:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
-  .btn-abort:active { transform: scale(0.95); }
 
-  /* ---------- Content Container ---------- */
-  .content {
-    flex: 1; display: flex; flex-direction: column; align-items: center; 
-    justify-content: space-between; 
-    width: 100%; max-width: 700px; margin: 0 auto;
-    padding-top: clamp(8px, 1.5vh, 16px);
-    animation: screenIn .4s ease;
+  /* ---------- Main Layout (Sidebar + Core) ---------- */
+  .main-wrapper {
+    flex: 1; display: flex; width: 100%; max-width: 1200px; margin: 0 auto;
+    gap: clamp(12px, 2vw, 24px); min-height: 0; padding-top: clamp(8px, 1.5vh, 16px);
   }
-  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- LEFT SIDEBAR (Menu Bar) ---------- */
+  .sidebar {
+    width: clamp(200px, 22vw, 260px); flex: none; display: flex; flex-direction: column;
+    gap: 16px; background: rgba(0, 10, 12, 0.6); border: 1px solid var(--cyan-dim);
+    border-radius: 8px; padding: 16px; box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px); overflow-y: auto; overflow-x: hidden;
+  }
+  /* Hide scrollbar for clean UI */
+  .sidebar::-webkit-scrollbar { display: none; }
+  .sidebar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .sb-header {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(10px, 1.4vmin, 12px);
+    color: var(--cyan); letter-spacing: 2px; border-bottom: 1px solid var(--cyan-dim);
+    padding-bottom: 8px; margin-bottom: 4px; text-align: center;
+  }
+
+  .ctrl-block { display: flex; flex-direction: column; gap: 8px; }
+  .ctrl-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-display); font-size: 9px; color: var(--text-dim); letter-spacing: 1px;
+  }
+  .ctrl-val { color: var(--amber); font-weight: 700; text-shadow: 0 0 6px var(--amber-glow); }
+
+  /* Slider UI (Brightness Style) */
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 10px; background: rgba(38, 232, 245, 0.1);
+    border-radius: 6px; outline: none; border: 1px solid var(--cyan-dim);
+    overflow: hidden; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--cyan); cursor: pointer;
+    box-shadow: -400px 0 0 395px rgba(38, 232, 245, 0.3); /* The cool fill hack */
+  }
+  #intensity-slider::-webkit-slider-thumb {
+    background: var(--amber); box-shadow: -400px 0 0 395px rgba(255, 176, 32, 0.3);
+  }
+
+  /* Duration Buttons in Sidebar */
+  .btn-grp { display: flex; gap: 6px; }
+  .btn-opt {
+    flex: 1; background: transparent; border: 1px solid var(--cyan-dim); color: var(--text-mid);
+    font-family: var(--font-display); font-weight: 600; font-size: 10px;
+    padding: 6px 0; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .btn-opt:hover { background: rgba(38, 232, 245, 0.1); border-color: var(--cyan); color: var(--cyan); }
+  .btn-opt.active { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan-glow); border-color: var(--cyan); }
+
+  /* Sci-Fi Toggle Switch */
+  .switch-row { display: flex; justify-content: space-between; align-items: center; }
+  .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1); border-radius: 18px; border: 1px solid var(--cyan-dim);
+    transition: .3s;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px;
+    background-color: var(--text-dim); border-radius: 50%; transition: .3s;
+  }
+  .switch input:checked + .slider { background-color: rgba(38, 232, 245, 0.2); border-color: var(--cyan); }
+  .switch input:checked + .slider:before { transform: translateX(18px); background-color: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
+
+
+  /* ---------- CORE SIMULATION AREA ---------- */
+  .simulation-core {
+    flex: 1; display: flex; flex-direction: column; min-width: 0;
+    align-items: center; justify-content: space-between;
+  }
 
   /* ---------- Heading ---------- */
   .heading {
     font-family: var(--font-display); font-weight: 700; 
-    font-size: clamp(16px, 3.5vmin, 28px); letter-spacing: 2px;
+    font-size: clamp(16px, 3vmin, 26px); letter-spacing: 2px;
     color: var(--amber); text-align: center; text-shadow: 0 0 16px var(--amber-glow);
     margin: 0 0 10px 0; flex: none;
   }
 
-  /* ---------- NEW: Live Directive & Timer Box ---------- */
+  /* ---------- Live Directive & Timer Box ---------- */
   .directive-panel {
     width: 100%; max-width: 500px; flex: none;
     background: rgba(0, 10, 12, 0.5); 
     border: 1px solid var(--cyan-dim); border-left: 4px solid var(--cyan);
-    border-radius: 4px; padding: clamp(8px, 1.5vmin, 12px) clamp(12px, 2vmin, 16px);
-    display: flex; flex-direction: column; gap: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    margin-bottom: clamp(6px, 1vh, 12px);
+    border-radius: 4px; padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: clamp(6px, 1vh, 10px);
   }
-  .timer-row {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-  }
-  .timer-label {
-    font-family: var(--font-display); font-weight: 700;
-    font-size: clamp(10px, 1.5vmin, 14px); color: var(--cyan);
-    letter-spacing: 1.5px; white-space: nowrap;
-  }
-  .timer-bar-bg {
-    flex: 1; height: 6px; background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px; overflow: hidden; position: relative;
-  }
-  .timer-bar-fill {
-    height: 100%; width: 100%; background: var(--cyan);
-    box-shadow: 0 0 10px var(--cyan-glow); transition: width 1s linear;
-  }
-  .directive-text {
-    font-family: 'Courier New', Courier, monospace; font-weight: bold;
-    font-size: clamp(10px, 1.4vmin, 13px); color: var(--white);
-    letter-spacing: 1px; text-shadow: 0 0 6px rgba(255,255,255,0.4);
-    text-align: left; transition: color 0.2s ease;
-  }
+  .timer-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .timer-label { font-family: var(--font-display); font-weight: 700; font-size: clamp(10px, 1.5vmin, 14px); color: var(--cyan); letter-spacing: 1.5px; }
+  .timer-bar-bg { flex: 1; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; }
+  .timer-bar-fill { height: 100%; width: 100%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); transition: width 1s linear; }
+  .directive-text { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(9px, 1.2vmin, 12px); color: var(--white); letter-spacing: 1px; }
 
   /* ---------- Radar Area ---------- */
   .radar-wrap {
     flex: 1; display: flex; justify-content: center; align-items: center;
     width: 100%; min-height: 0; margin: 0 0 clamp(10px, 2vh, 20px) 0;
   }
-  .radar-svg { 
-    height: 100%; max-height: clamp(200px, 40vh, 380px); 
-    width: auto; display: block; 
-  }
-
+  .radar-svg { height: 100%; max-height: clamp(180px, 35vh, 380px); width: auto; display: block; }
   .r-ring { fill: none; stroke: var(--cyan); }
   .r-ring--outer { stroke-width: 1.4; opacity: .8; }
   .r-ring--mid { stroke-width: 1.1; opacity: .5; }
@@ -205,83 +211,74 @@
   .r-center { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); animation: pulseDot 1.9s ease-in-out infinite; }
   @keyframes pulseDot { 0%, 100% { r: 3.2; opacity: 1; } 50% { r: 4.6; opacity: .6; } }
 
-  .cog { transition: transform .8s cubic-bezier(.22, .61, .36, 1); }
-  .cog-dot { fill: var(--amber); filter: drop-shadow(0 0 10px var(--amber-glow)); }
-  .cog-label {
-    font-family: var(--font-display); font-weight: 600; font-size: 9px; letter-spacing: 2px;
-    fill: var(--white); text-anchor: middle;
-  }
+  .cog { transition: transform 0.4s cubic-bezier(.22, .61, .36, 1); }
+  .cog-dot { fill: var(--amber); filter: drop-shadow(0 0 10px var(--amber-glow)); transition: r 0.2s ease, fill 0.2s ease; }
+  .cog-label { font-family: var(--font-display); font-weight: 600; font-size: 9px; letter-spacing: 2px; fill: var(--white); text-anchor: middle; }
 
-  /* ---------- HUD Dashboard ---------- */
+  /* ---------- Advanced HUD Dashboard ---------- */
   .hud-dashboard {
-    display: flex; align-items: center; justify-content: center;
-    gap: clamp(10px, 2vw, 24px); width: 100%; flex: none;
-    margin-bottom: clamp(10px, 2vh, 20px);
+    display: flex; align-items: stretch; justify-content: center;
+    gap: clamp(8px, 1.5vw, 16px); width: 100%; flex: none;
+    margin-bottom: clamp(10px, 2vh, 16px);
   }
 
   .stat-box {
     position: relative; flex: 1; max-width: 140px; 
-    padding: clamp(10px, 1.8vmin, 16px) 5px; text-align: center;
+    padding: clamp(6px, 1.2vmin, 10px); text-align: center;
     border: 1px solid var(--cyan-dim); border-radius: 6px; background: rgba(38, 232, 245, .03);
+    display: flex; flex-direction: column; justify-content: space-between; align-items: center;
   }
-  .stat-box::before, .stat-box::after {
-    content: ""; position: absolute; width: 8px; height: 8px; border-color: var(--cyan); opacity: .75;
-  }
+  .stat-box::before, .stat-box::after { content: ""; position: absolute; width: 6px; height: 6px; border-color: var(--cyan); opacity: .75; }
   .stat-box::before { top: -1px; left: -1px; border-top: 1.5px solid var(--cyan); border-left: 1.5px solid var(--cyan); }
   .stat-box::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid var(--cyan); border-right: 1.5px solid var(--cyan); }
   
-  .stat-label {
-    font-family: var(--font-display); font-weight: 500; 
-    font-size: clamp(8px, 1.2vmin, 10px); letter-spacing: 2px;
-    color: var(--text-dim); margin-bottom: clamp(4px, 1vmin, 8px);
-  }
-  .stat-value {
-    font-family: var(--font-display); font-weight: 700; 
-    font-size: clamp(14px, 2.2vmin, 20px); letter-spacing: 1px;
-    color: var(--white); text-shadow: 0 0 10px var(--cyan-glow);
-  }
+  .stat-label { font-family: var(--font-display); font-weight: 500; font-size: clamp(8px, 1.1vmin, 10px); letter-spacing: 2px; color: var(--text-dim); }
+  .stat-value { font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 2.2vmin, 20px); letter-spacing: 1px; color: var(--white); text-shadow: 0 0 10px var(--cyan-glow); margin: 4px 0; }
+  
+  /* Live Wave Graph */
+  .wave-graph { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 16px; width: 100%; opacity: 0.7; }
+  .wave-bar { width: 4px; background: var(--cyan); border-radius: 1px; transition: height 0.1s ease; }
+  .wave-amber .wave-bar { background: var(--amber); }
 
   .balance-pill {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: rgba(38, 232, 245, 0.1); border: 1.5px solid var(--cyan); border-radius: 12px; 
-    padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 30px);
+    padding: clamp(6px, 1vmin, 10px) clamp(16px, 3vmin, 24px);
     box-shadow: inset 0 0 16px rgba(38, 232, 245, 0.2), 0 0 20px var(--cyan-glow);
-    min-width: 140px;
+    min-width: clamp(120px, 20vw, 160px);
   }
-  .balance-label { font-family: var(--font-display); font-weight: 600; font-size: clamp(9px, 1.2vmin, 11px); color: var(--cyan); letter-spacing: 2px; margin-bottom: 4px; }
-  .balance-value { font-family: var(--font-display); font-weight: 800; font-size: clamp(20px, 3.5vmin, 28px); color: var(--white); text-shadow: 0 0 12px var(--cyan-glow); }
+  .balance-label { font-family: var(--font-display); font-weight: 600; font-size: clamp(9px, 1.2vmin, 11px); color: var(--cyan); letter-spacing: 2px; margin-bottom: 2px; }
+  .balance-value { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 4vmin, 32px); color: var(--white); text-shadow: 0 0 12px var(--cyan-glow); }
+  .gforce-text { font-family: var(--font-display); font-size: clamp(8px, 1vmin, 10px); color: var(--amber); letter-spacing: 1px; margin-top: 4px; }
 
   /* ---------- Emergency stop Button ---------- */
-  .estop-row { 
-    display: flex; justify-content: center; width: 100%; flex: none;
-    margin-bottom: clamp(10px, 2vh, 20px);
-  }
+  .estop-row { display: flex; justify-content: center; width: 100%; flex: none; margin-bottom: 4px; }
   .btn-estop {
-    width: 100%; max-width: 400px;
-    font-family: var(--font-display); font-weight: 700; 
-    font-size: clamp(11px, 1.6vmin, 15px); letter-spacing: 2px;
-    color: #3a0a0a; background: var(--danger); border: none; border-radius: 8px;
-    padding: clamp(14px, 2vmin, 18px); cursor: pointer; white-space: nowrap;
-    box-shadow: 0 0 20px var(--danger-glow);
-    transition: filter .15s ease, transform .1s ease, background .15s ease, color .15s ease;
-    animation: estopGlow 2.4s ease-in-out infinite;
+    width: 100%; max-width: 400px; font-family: var(--font-display); font-weight: 700; 
+    font-size: clamp(12px, 1.8vmin, 16px); letter-spacing: 2px; color: #3a0a0a; background: var(--danger); 
+    border: none; border-radius: 8px; padding: clamp(12px, 2vmin, 16px); cursor: pointer; 
+    box-shadow: 0 0 20px var(--danger-glow); transition: all .15s ease; animation: estopGlow 2.4s ease-in-out infinite;
   }
-  .btn-estop:hover { filter: brightness(1.1); }
-  .btn-estop:active { transform: scale(.97); }
-  .btn-estop:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+  .btn-estop:hover { filter: brightness(1.1); } .btn-estop:active { transform: scale(.97); }
   @keyframes estopGlow { 0%, 100% { box-shadow: 0 0 16px var(--danger-glow); } 50% { box-shadow: 0 0 28px var(--danger-glow); } }
-  
-  .btn-estop.halted { background: var(--text-dim); color: #0a1516; box-shadow: none; animation: none; }
-  .btn-estop:disabled { opacity: .7; cursor: not-allowed; }
+  .btn-estop.halted { background: var(--text-dim); color: #0a1516; box-shadow: none; animation: none; pointer-events: none; }
 
   /* ---------- Footer ---------- */
   .statusbar {
-    flex: none;
-    margin-top: clamp(10px, 2vh, 16px); padding-top: clamp(10px, 2vmin, 14px);
-    border-top: 1px solid var(--grid-line-strong);
-    font-family: var(--font-display); font-weight: 500;
-    font-size: clamp(8.5px, 1.2vmin, 12px); letter-spacing: 1px; color: var(--cyan-dim);
-    text-align: center; z-index: 10;
+    flex: none; margin-top: clamp(6px, 1vh, 12px); padding-top: clamp(6px, 1.5vmin, 10px);
+    border-top: 1px solid var(--grid-line-strong); font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(8px, 1.1vmin, 11px); letter-spacing: 1px; color: var(--cyan-dim); text-align: center; z-index: 10;
+  }
+
+  /* Responsive layout for mobile: Sidebar becomes a horizontal swipeable menu at the top */
+  @media (max-width: 768px) {
+    .main-wrapper { flex-direction: column; gap: 10px; }
+    .sidebar {
+      width: 100%; height: auto; flex-direction: row; align-items: center; padding: 12px; gap: 24px;
+      overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
+    }
+    .ctrl-block { min-width: 180px; scroll-snap-align: start; }
+    .sb-header { display: none; } /* Hide title on mobile to save space */
   }
 </style>
 </head>
@@ -295,82 +292,132 @@
     <div class="glitch-sub">CRITICAL SYSTEM FAILURE IMMINENT...</div>
   </div>
 
-  <span class="frame-corner tl"></span>
-  <span class="frame-corner tr"></span>
-  <span class="frame-corner bl"></span>
-  <span class="frame-corner br"></span>
+  <span class="frame-corner tl"></span><span class="frame-corner tr"></span>
+  <span class="frame-corner bl"></span><span class="frame-corner br"></span>
 
   <header class="topbar">
     <span class="brand">ZERO-G LABS</span>
     <button type="button" class="btn-abort" onclick="window.location.href='01-idle.html'">ABORT</button>
   </header>
 
-  <div class="content">
+  <div class="main-wrapper">
     
-    <h1 class="heading">// ACTIVE SIMULATION //</h1>
+    <!-- ================= LEFT SIDEBAR (Menu Bar) ================= -->
+    <aside class="sidebar">
+      <div class="sb-header">[ CONTROL_PANEL ]</div>
+      
+      <!-- 1. Intensity Slider -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>SIM INTENSITY</span> <span class="ctrl-val" id="intensity-val">LVL-2</span></div>
+        <input type="range" id="intensity-slider" min="1" max="3" value="2" step="1">
+      </div>
 
-    <!-- NEW: Timer & Instruction Box -->
-    <div class="directive-panel">
-      <div class="timer-row">
-        <span class="timer-label">T-MINUS: 00:<span id="time-left">15</span></span>
-        <div class="timer-bar-bg">
-          <div class="timer-bar-fill" id="timer-fill"></div>
+      <!-- 2. Duration Option -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>TEST DURATION</span></div>
+        <div class="btn-grp" id="dur-btns">
+          <button class="btn-opt active" data-time="15">15S</button>
+          <button class="btn-opt" data-time="30">30S</button>
+          <button class="btn-opt" data-time="60">60S</button>
         </div>
       </div>
-      <div class="directive-text" id="directive-text">>> INITIATING SENSORS. HOLD POSITION.</div>
-    </div>
 
-    <!-- Radar Area -->
-    <div class="radar-wrap">
-      <svg viewBox="0 0 300 300" class="radar-svg" role="img" aria-label="Live balance radar">
-        <circle class="r-ring r-ring--outer" cx="150" cy="150" r="108"/>
-        <circle class="r-ring r-ring--mid"   cx="150" cy="150" r="80"/>
-        <circle class="r-ring r-ring--inner" cx="150" cy="150" r="50"/>
+      <!-- 3. Magnetic Flux Slider -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>MAGNETIC FLUX</span> <span class="ctrl-val" id="flux-val" style="color: var(--cyan);">50%</span></div>
+        <input type="range" id="flux-slider" min="0" max="100" value="50">
+      </div>
 
-        <g id="radar-ticks"></g>
+      <!-- 4. Gravity Dampener Toggle -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>GRAVITY DAMPENER</span>
+          <label class="switch"><input type="checkbox" id="tog-gravity" checked><span class="slider"></span></label>
+        </div>
+      </div>
 
-        <line class="r-cross" x1="150" y1="150" x2="150" y2="50"/>
-        <line class="r-cross" x1="150" y1="150" x2="150" y2="250"/>
-        <line class="r-cross" x1="150" y1="150" x2="250" y2="150"/>
-        <line class="r-cross" x1="150" y1="150" x2="50"  y2="150"/>
-
-        <polygon class="r-arrow" points="150,28 144,42 156,42"/>
-        <polygon class="r-arrow" points="150,272 144,258 156,258"/>
-        <polygon class="r-arrow" points="272,150 258,144 258,156"/>
-        <polygon class="r-arrow" points="28,150 42,144 42,156"/>
-
-        <circle class="r-center" cx="150" cy="150" r="3.2"/>
-
-        <g id="cog" class="cog" transform="translate(150,150)">
-          <text class="cog-label" x="35" y="-38">C.O.G.</text>
-          <circle class="cog-dot" cx="35" cy="-28" r="13"/>
-        </g>
-      </svg>
-    </div>
-
-    <!-- Symmetrical Dashboard -->
-    <div class="hud-dashboard">
-      <div class="stat-box">
-        <div class="stat-label">PITCH</div>
-        <div class="stat-value" id="pitch-val">+ 12.4&deg;</div>
+      <!-- 5. Neural Sync Toggle -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>NEURAL SYNC</span>
+          <label class="switch"><input type="checkbox" id="tog-neural" checked><span class="slider"></span></label>
+        </div>
       </div>
       
-      <div class="balance-pill">
-        <span class="balance-label">BALANCE</span>
-        <span class="balance-value" id="balance-val">84%</span>
+      <!-- 6. Cooling System Toggle -->
+      <div class="ctrl-block">
+        <div class="ctrl-label"><span>COOLING SYS</span>
+          <label class="switch"><input type="checkbox" id="tog-cooling" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= CORE SIMULATION AREA ================= -->
+    <div class="simulation-core">
+      <h1 class="heading">// ACTIVE SIMULATION //</h1>
+
+      <!-- Timer & Instruction Box -->
+      <div class="directive-panel">
+        <div class="timer-row">
+          <span class="timer-label">T-MINUS: 00:<span id="time-left">15</span></span>
+          <div class="timer-bar-bg">
+            <div class="timer-bar-fill" id="timer-fill"></div>
+          </div>
+        </div>
+        <div class="directive-text" id="directive-text">>> INITIATING SENSORS. HOLD POSITION.</div>
       </div>
 
-      <div class="stat-box">
-        <div class="stat-label">ROLL</div>
-        <div class="stat-value" id="roll-val">- 05.2&deg;</div>
+      <!-- Radar Area -->
+      <div class="radar-wrap">
+        <svg viewBox="0 0 300 300" class="radar-svg" role="img" aria-label="Live balance radar">
+          <circle class="r-ring r-ring--outer" cx="150" cy="150" r="108"/>
+          <circle class="r-ring r-ring--mid"   cx="150" cy="150" r="80"/>
+          <circle class="r-ring r-ring--inner" cx="150" cy="150" r="50"/>
+          <g id="radar-ticks"></g>
+          <line class="r-cross" x1="150" y1="150" x2="150" y2="50"/>
+          <line class="r-cross" x1="150" y1="150" x2="150" y2="250"/>
+          <line class="r-cross" x1="150" y1="150" x2="250" y2="150"/>
+          <line class="r-cross" x1="150" y1="150" x2="50"  y2="150"/>
+          <polygon class="r-arrow" points="150,28 144,42 156,42"/>
+          <polygon class="r-arrow" points="150,272 144,258 156,258"/>
+          <polygon class="r-arrow" points="272,150 258,144 258,156"/>
+          <polygon class="r-arrow" points="28,150 42,144 42,156"/>
+          <circle class="r-center" cx="150" cy="150" r="3.2"/>
+          <g id="cog" class="cog" transform="translate(150,150)">
+            <text class="cog-label" x="35" y="-38">C.O.G.</text>
+            <circle class="cog-dot" cx="35" cy="-28" r="13" id="cog-dot"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Advanced HUD Dashboard -->
+      <div class="hud-dashboard">
+        <div class="stat-box">
+          <div class="stat-label">PITCH</div>
+          <div class="stat-value" id="pitch-val">+ 12.4&deg;</div>
+          <div class="wave-graph" id="pitch-wave">
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          </div>
+        </div>
+        
+        <div class="balance-pill">
+          <span class="balance-label">KINETIC BAL.</span>
+          <span class="balance-value" id="balance-val">84%</span>
+          <div class="gforce-text" id="gforce-val">G-FORCE: 1.04 G</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">ROLL</div>
+          <div class="stat-value" id="roll-val">- 05.2&deg;</div>
+          <div class="wave-graph wave-amber" id="roll-wave">
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency stop -->
+      <div class="estop-row">
+        <button class="btn-estop" id="btn-estop">[ EMERGENCY STOP ]</button>
       </div>
     </div>
-
-    <!-- Emergency stop -->
-    <div class="estop-row">
-      <button class="btn-estop" id="btn-estop">[ EMERGENCY STOP ]</button>
-    </div>
-
   </div>
 
   <footer class="statusbar" id="statusbar">SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION</footer>
@@ -395,33 +442,88 @@
     }
 
     var cog       = document.getElementById('cog');
+    var cogDot    = document.getElementById('cog-dot');
     var pitchEl   = document.getElementById('pitch-val');
     var rollEl    = document.getElementById('roll-val');
     var balanceEl = document.getElementById('balance-val');
+    var gforceEl  = document.getElementById('gforce-val');
     var estopBtn  = document.getElementById('btn-estop');
     var statusbar = document.getElementById('statusbar');
     var overlay   = document.getElementById('glitch-overlay');
-    
     var timeTxt   = document.getElementById('time-left');
     var timerFill = document.getElementById('timer-fill');
     var dirTxt    = document.getElementById('directive-text');
+
+    var pitchBars = document.querySelectorAll('#pitch-wave .wave-bar');
+    var rollBars  = document.querySelectorAll('#roll-wave .wave-bar');
 
     var running = true;
     var t = 0;
     var isGlitching = false;
     var last = { pitch: 12.4, roll: -5.2, balance: 84 };
 
-    // Set Total Test Duration (15 seconds)
+    // --- Dynamic Parameters ---
+    var maxTime = 15;
     var timeLeft = 15;
+    var diffMultiplier = 1.0; // 0.5 = easy, 1.0 = normal, 2.0 = hard
 
-    // Messages for the directive box
+    // Custom Terminal Feedback Function
+    function updateTerminal(msg, color) {
+      if(!running || isGlitching) return;
+      dirTxt.style.color = color || "var(--cyan-soft)";
+      dirTxt.textContent = ">> " + msg;
+    }
+
+    // 1. Sidebar Interactions
+    var intSlider = document.getElementById('intensity-slider');
+    var intVal = document.getElementById('intensity-val');
+    intSlider.addEventListener('input', function(e) {
+      var val = e.target.value;
+      if(val == 1) { diffMultiplier = 0.5; intVal.textContent = 'LVL-1 (STABLE)'; updateTerminal("SIMULATION LEVEL: STABLE", "var(--green)"); }
+      if(val == 2) { diffMultiplier = 1.0; intVal.textContent = 'LVL-2 (DYNAMIC)'; updateTerminal("SIMULATION LEVEL: DYNAMIC", "var(--cyan)"); }
+      if(val == 3) { diffMultiplier = 2.0; intVal.textContent = 'LVL-3 (EXTREME)'; updateTerminal("WARNING: EXTREME MODE ENGAGED", "var(--amber)"); }
+      
+      // Update dot visual
+      cogDot.style.r = diffMultiplier === 2.0 ? "16" : (diffMultiplier === 0.5 ? "10" : "13");
+      cogDot.style.fill = diffMultiplier === 2.0 ? "var(--danger)" : "var(--amber)";
+    });
+
+    var fluxSlider = document.getElementById('flux-slider');
+    var fluxVal = document.getElementById('flux-val');
+    fluxSlider.addEventListener('input', function(e) {
+      fluxVal.textContent = e.target.value + '%';
+      updateTerminal("MAGNETIC FLUX ADJUSTED TO " + e.target.value + "%");
+    });
+
+    document.getElementById('tog-gravity').addEventListener('change', function(e) {
+      updateTerminal(e.target.checked ? "GRAVITY DAMPENER: ONLINE" : "GRAVITY DAMPENER: OFFLINE", e.target.checked ? "var(--cyan)" : "var(--amber)");
+    });
+    document.getElementById('tog-neural').addEventListener('change', function(e) {
+      updateTerminal(e.target.checked ? "NEURAL SYNC: ESTABLISHED" : "NEURAL SYNC: DISCONNECTED", e.target.checked ? "var(--cyan)" : "var(--amber)");
+    });
+    document.getElementById('tog-cooling').addEventListener('change', function(e) {
+      updateTerminal(e.target.checked ? "COOLING SYS: OPTIMAL" : "WARNING: COOLING SYS OFFLINE", e.target.checked ? "var(--cyan)" : "var(--danger)");
+    });
+
+    var durBtns = document.querySelectorAll('#dur-btns .btn-opt');
+    durBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if(!running) return;
+        durBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        maxTime = parseInt(this.getAttribute('data-time'));
+        timeLeft = maxTime; 
+        updateTerminal("TEST DURATION UPDATED: " + maxTime + " SECONDS");
+      });
+    });
+
     var dirMessages = [
-      ">> MAINTAIN POSTURE. DO NOT MOVE.",
-      ">> CALCULATING CENTER OF GRAVITY...",
-      ">> HOLD STEADY. RECORDING VECTORS.",
-      ">> PITCH AND ROLL COMPENSATING...",
-      ">> TELEMETRY LINK STABLE.",
-      ">> AVOID SUDDEN SHIFTS."
+      "MAINTAIN POSTURE. DO NOT MOVE.",
+      "CALCULATING CENTER OF GRAVITY...",
+      "HOLD STEADY. RECORDING VECTORS.",
+      "PITCH AND ROLL COMPENSATING...",
+      "TELEMETRY LINK STABLE.",
+      "AVOID SUDDEN SHIFTS."
     ];
 
     function fmt(n) {
@@ -431,38 +533,43 @@
       return sign + ' ' + abs + '\u00B0';
     }
 
-    // Radar Telemetry Logic (updates smoothly)
+    function animateWaves() {
+      pitchBars.forEach(b => b.style.height = Math.max(10, Math.random() * 100) + '%');
+      rollBars.forEach(b => b.style.height = Math.max(10, Math.random() * 100) + '%');
+    }
+
+    // 2. Radar Telemetry Logic 
     function tick() {
       if (!running) return;
       t += 1;
 
-      var pitch = 12.4 + Math.sin(t * 0.35) * 4 + (Math.random() - 0.5) * 1.5;
-      var roll  = -5.2 + Math.cos(t * 0.42) * 3 + (Math.random() - 0.5) * 1.5;
+      var pitch = (12.4 + Math.sin(t * 0.35) * 4 + (Math.random() - 0.5) * 2.5) * diffMultiplier;
+      var roll  = (-5.2 + Math.cos(t * 0.42) * 3 + (Math.random() - 0.5) * 2.5) * diffMultiplier;
 
-      var dx = Math.max(-70, Math.min(70, roll * 6));
-      var dy = Math.max(-70, Math.min(70, -pitch * 4));
+      var dx = Math.max(-75, Math.min(75, roll * 4));
+      var dy = Math.max(-75, Math.min(75, -pitch * 3));
 
       cog.setAttribute('transform', 'translate(' + (150 + dx) + ',' + (150 + dy) + ')');
+      animateWaves();
 
       if (!isGlitching) {
         pitchEl.textContent = fmt(pitch);
         rollEl.textContent  = fmt(roll);
 
         var dist = Math.sqrt(dx * dx + dy * dy);
-        var balance = Math.round(Math.max(55, 99 - dist * 0.35));
+        var balance = Math.round(Math.max(20, 100 - (dist * 0.4 * diffMultiplier)));
         balanceEl.textContent = balance + '%';
+        
+        var gForce = (1.0 + (dist * 0.005)).toFixed(2);
+        gforceEl.textContent = "G-FORCE: " + gForce + " G";
 
-        last.pitch = pitch;
-        last.roll = roll;
-        last.balance = balance;
+        last.pitch = pitch; last.roll = roll; last.balance = balance;
       }
     }
-    var loop = setInterval(tick, 900);
+    var loop = setInterval(tick, 400); 
     tick();
 
-    // ---------------------------------------------------------
-    // COUNTDOWN & INSTRUCTION TIMER LOGIC (Runs every 1 sec)
-    // ---------------------------------------------------------
+    // 3. COUNTDOWN LOGIC
     var countdownTimer = setInterval(function() {
       if (!running) return;
       timeLeft--;
@@ -472,36 +579,25 @@
         endTest('completed');
       }
 
-      // Update progress bar & time text
       timeTxt.textContent = (timeLeft < 10 ? '0' : '') + timeLeft;
-      timerFill.style.width = ((timeLeft / 15) * 100) + '%';
+      timerFill.style.width = ((timeLeft / maxTime) * 100) + '%';
 
-      // Update Instruction text randomly every 3 seconds
       if (!isGlitching && timeLeft > 0 && timeLeft % 3 === 0) {
-        dirTxt.style.color = "var(--white)";
-        dirTxt.textContent = dirMessages[Math.floor(Math.random() * dirMessages.length)];
+        updateTerminal(dirMessages[Math.floor(Math.random() * dirMessages.length)], "var(--white)");
       }
     }, 1000);
 
-
-    // ---------------------------------------------------------
-    // EASTER EGG / GLITCH LOGIC
-    // ---------------------------------------------------------
-    var glitchTime = 4000 + (Math.random() * 6000); 
-    
+    // 4. GLITCH LOGIC (Happens if LVL-2 or LVL-3)
+    var glitchTime = 4000 + (Math.random() * 5000); 
     var glitchTrigger = setTimeout(function() {
-      if (!running) return; 
+      if (!running || diffMultiplier < 1.0) return; 
       
       isGlitching = true;
       overlay.classList.add('active');
       
-      // Corrupt the UI numbers briefly
-      pitchEl.textContent = "ERR!!";
-      rollEl.textContent  = "ERR!!";
-      balanceEl.textContent = "00%";
+      pitchEl.textContent = "ERR!!"; rollEl.textContent = "ERR!!";
+      balanceEl.textContent = "00%"; gforceEl.textContent = "G-FORCE: MAX";
       statusbar.textContent = "SYS.STATUS: ANOMALY_DETECTED // SENSORS_OFFLINE // WARNING";
-      
-      // Update Directive Box to show Warning
       dirTxt.style.color = "var(--danger)";
       dirTxt.textContent = ">> CRITICAL WARNING: SYSTEM OVERLOAD!";
 
@@ -510,57 +606,46 @@
         isGlitching = false;
         overlay.classList.remove('active');
         statusbar.textContent = "SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION";
-        
-        // Restore Directive
-        dirTxt.style.color = "var(--cyan-soft)";
-        dirTxt.textContent = ">> SYSTEM RECOVERED. STABILIZING...";
-      }, 1500);
+        updateTerminal("SYSTEM RECOVERED. STABILIZING...", "var(--cyan-soft)");
+      }, diffMultiplier === 2.0 ? 2500 : 1500); 
       
     }, glitchTime);
 
-    // ---------------------------------------------------------
-    // END TEST LOGIC
-    // ---------------------------------------------------------
+    // 5. END TEST LOGIC
     function endTest(reason) {
       if (!running) return;
       running = false;
-      clearInterval(loop);
-      clearInterval(countdownTimer);
-      clearTimeout(glitchTrigger); 
+      clearInterval(loop); clearInterval(countdownTimer); clearTimeout(glitchTrigger); 
 
-      isGlitching = false;
-      overlay.classList.remove('active');
+      isGlitching = false; overlay.classList.remove('active');
+      timeTxt.textContent = "00"; timerFill.style.width = "0%";
       
-      // Force timer to zero visually if ended manually
-      timeTxt.textContent = "00";
-      timerFill.style.width = "0%";
+      pitchBars.forEach(b => b.style.height = '10%');
+      rollBars.forEach(b => b.style.height = '10%');
 
       estopBtn.disabled = true;
       estopBtn.textContent = '[ ENDING TEST... ]';
       estopBtn.classList.add('halted');
       
+      var inputs = document.querySelectorAll('input, button');
+      inputs.forEach(el => { el.disabled = true; el.style.pointerEvents = 'none'; });
+
       if (reason === 'stopped') {
-        statusbar.textContent = 'SYS.STATUS: HALTED // EMERGENCY_STOP_ENGAGED // COMPILING_RESULTS';
-        dirTxt.style.color = "var(--danger)";
-        dirTxt.textContent = ">> SIMULATION ABORTED BY USER.";
+        statusbar.textContent = 'SYS.STATUS: HALTED // EMERGENCY_STOP_ENGAGED';
+        dirTxt.style.color = "var(--danger)"; dirTxt.textContent = ">> SIMULATION ABORTED BY USER.";
       } else {
         statusbar.textContent = 'SYS.STATUS: TEST_COMPLETE // COMPILING_RESULTS';
-        dirTxt.style.color = "var(--green)";
-        dirTxt.textContent = ">> SIMULATION COMPLETE. ANALYZING DATA...";
+        dirTxt.style.color = "var(--green)"; dirTxt.textContent = ">> SIMULATION COMPLETE. ANALYZING DATA...";
       }
 
       setTimeout(function () {
         var params = new URLSearchParams(window.location.search);
         var mode = params.get('mode') === 'easy' ? 'easy' : 'normal';
         var qs = new URLSearchParams({
-          mode: mode,
-          balance: String(last.balance),
-          pitch: last.pitch.toFixed(1),
-          roll: last.roll.toFixed(1),
-          reason: reason
+          mode: mode, balance: String(last.balance), pitch: last.pitch.toFixed(1), roll: last.roll.toFixed(1), reason: reason
         });
         window.location.href = '08-result.html?' + qs.toString();
-      }, 1200);
+      }, 1500);
     }
 
     estopBtn.addEventListener('click', function () { endTest('stopped'); });
