@@ -80,9 +80,29 @@
     font-size: clamp(14px, 2.4vmin, 24px);
     letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
   }
-  .stepbadge {
-    font-family: var(--font-display); font-weight: 500;
-    font-size: clamp(9px, 1.4vmin, 14px); letter-spacing: 1.5px; color: var(--text-dim);
+  
+  /* ---------- Admin / Control Panel Button ---------- */
+  .btn-admin {
+    background: rgba(38, 232, 245, 0.05);
+    border: 1px solid var(--cyan-dim);
+    color: var(--cyan);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(9px, 1.3vmin, 12px);
+    letter-spacing: 1.5px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-admin:hover {
+    background: rgba(38, 232, 245, 0.15);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+    color: var(--white);
+  }
+  .btn-admin:active {
+    transform: scale(0.95);
   }
 
   /* ---------- Content ---------- */
@@ -163,7 +183,7 @@
   .btn-start:active { transform: scale(.98); }
   .btn-start:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
 
-  /* ---------- Ticker (NEW) ---------- */
+  /* ---------- Ticker ---------- */
   .ticker-wrap {
     width: 100%;
     max-width: clamp(300px, 80vw, 800px);
@@ -252,7 +272,8 @@
 
   <header class="topbar">
     <span class="brand">ZERO-G LABS</span>
-    <span class="stepbadge">Start</span>
+    <!-- নতুন কন্ট্রোল প্যানেল বাটন অ্যাড করা হয়েছে -->
+    <button class="btn-admin" onclick="window.location.href='10-admin.html'">[ CONTROL PANEL ]</button>
   </header>
 
   <div class="content">
@@ -326,14 +347,10 @@
 
     <button class="btn-start" id="btn-start">TAP TO START</button>
 
-    <!-- NEW TICKER BLOCK -->
+    <!-- TICKER BLOCK -->
     <div class="ticker-wrap">
       <div class="ticker-heading">LIVE RANKING</div>
       <div class="ticker-view">
-        <!-- 
-          Note: We duplicate the content exactly twice inside the track 
-          so the CSS marquee animation loops seamlessly.
-        -->
         <div class="ticker-track">
           <!-- First Set -->
           <span class="ticker-item">#1 PILOT_NOVA [<span class="score">99%</span>]</span>
