@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ZERO-G LABS // Admin Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030506;
+    --grid-line: rgba(0, 229, 255, .04);
+    --grid-line-strong: rgba(0, 229, 255, .08);
+
+    --cyan: #26e8f5; --cyan-soft: #7ff2fb; --cyan-dim: #0e4650; --cyan-glow: rgba(38, 232, 245, .55);
+    --amber: #ffb020; --amber-glow: rgba(255, 176, 32, .6);
+    --green: #3dffa4; --green-glow: rgba(61, 255, 164, .55);
+    --danger: #ff4d4f; --danger-glow: rgba(255, 77, 79, .6);
+    
+    --white: #eaf6f7; --text-dim: #5c7c80; --text-mid: #93b3b6;
+
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg);
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+    height: 100vh; overflow: hidden;
+  }
+
+  /* ---------- Layout ---------- */
+  .app-container {
+    display: flex; height: 100vh; width: 100%;
+    background: linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/30px 30px,
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/30px 30px;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 260px; background: rgba(0, 10, 12, 0.8);
+    border-right: 1px solid var(--cyan-dim); display: flex; flex-direction: column;
+    padding: 24px 0; z-index: 10; box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  }
+  .brand-area { padding: 0 24px 24px; border-bottom: 1px solid var(--cyan-dim); margin-bottom: 20px; }
+  .brand-title { font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--cyan); letter-spacing: 2px; }
+  .brand-sub { font-family: var(--font-display); font-size: 10px; color: var(--text-dim); letter-spacing: 3px; margin-top: 4px; }
+  
+  .nav-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; flex: 1; }
+  .nav-item {
+    font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+    color: var(--text-mid); padding: 14px 16px; border-radius: 6px; cursor: pointer;
+    transition: all 0.2s ease; border: 1px solid transparent;
+  }
+  .nav-item:hover { background: rgba(38, 232, 245, 0.05); color: var(--cyan-soft); }
+  .nav-item.active { background: rgba(38, 232, 245, 0.1); color: var(--cyan); border-color: var(--cyan-dim); box-shadow: inset 4px 0 0 var(--cyan); }
+
+  .admin-profile { padding: 20px 24px 0; border-top: 1px solid var(--cyan-dim); display: flex; align-items: center; gap: 12px;}
+  .avatar { width: 36px; height: 36px; background: var(--cyan-dim); border: 2px solid var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--cyan); font-weight: bold; }
+  .admin-info { display: flex; flex-direction: column; }
+  .admin-name { font-family: var(--font-display); font-size: 12px; color: var(--white); font-weight: 700; }
+  .admin-role { font-size: 10px; color: var(--amber); }
+
+  /* ---------- Main Content Area ---------- */
+  .main-content {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 24px 32px; overflow-y: auto; overflow-x: hidden;
+  }
+
+  .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .page-title { font-family: var(--font-display); font-size: 24px; color: var(--white); letter-spacing: 2px; }
+  .sys-clock { font-family: 'Courier New', monospace; font-size: 16px; color: var(--cyan); font-weight: bold; padding: 8px 16px; border: 1px solid var(--cyan-dim); border-radius: 4px; background: rgba(0,0,0,0.5); }
+
+  /* ---------- View Management ---------- */
+  .view-section { display: none; animation: screenIn 0.3s ease; width: 100%; }
+  .view-section.active.grid-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+  .view-section.active.block-view { display: block; }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Control Cards ---------- */
+  .panel-card {
+    background: rgba(0, 15, 20, 0.6); border: 1px solid var(--cyan-dim);
+    border-radius: 8px; display: flex; flex-direction: column; position: relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  }
+  .panel-card::before { content: ""; position: absolute; top: 0; left: 0; width: 30px; height: 3px; background: var(--cyan); border-radius: 8px 0 0 0; }
+  
+  .panel-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--grid-line-strong);
+    font-family: var(--font-display); font-size: 13px; font-weight: 700;
+    color: var(--cyan); letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; flex: 1; }
+
+  /* ---------- UI Elements inside Cards ---------- */
+  .control-group { display: flex; flex-direction: column; gap: 10px; }
+  .control-header { display: flex; justify-content: space-between; align-items: center; }
+  .control-label { font-size: 11px; color: var(--text-mid); font-family: var(--font-display); letter-spacing: 1px; }
+  .control-value { font-size: 12px; color: var(--white); font-weight: bold; font-family: 'Courier New', monospace; }
+  .val-amber { color: var(--amber); }
+
+  /* Custom Range Slider */
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px; outline: none; border: 1px solid var(--cyan-dim); cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); cursor: pointer;
+  }
+  
+  /* Sci-Fi Toggle Switch */
+  .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.1); border-radius: 22px; border: 1px solid var(--text-dim); transition: .3s; }
+  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: var(--text-dim); border-radius: 50%; transition: .3s; }
+  .switch input:checked + .slider { background-color: rgba(38, 232, 245, 0.2); border-color: var(--cyan); }
+  .switch input:checked + .slider:before { transform: translateX(22px); background-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+
+  /* Buttons */
+  .btn-action {
+    background: rgba(38, 232, 245, 0.1); border: 1px solid var(--cyan); color: var(--cyan);
+    font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    padding: 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; text-align: center;
+  }
+  .btn-action:hover { background: var(--cyan); color: #000; box-shadow: 0 0 16px var(--cyan-glow); }
+  
+  .btn-danger { background: rgba(255, 77, 79, 0.1); border-color: var(--danger); color: var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: #000; box-shadow: 0 0 16px var(--danger-glow); }
+
+  /* ---------- Terminal Log Box ---------- */
+  .terminal-box {
+    background: rgba(0,0,0,0.8); border: 1px solid var(--cyan-dim); border-radius: 4px;
+    padding: 12px; height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
+  }
+  .log-line { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-mid); }
+  .log-line .time { color: var(--cyan-dim); margin-right: 8px; }
+  .log-line .sys { color: var(--amber); }
+
+  /* ---------- Master Override Big Button ---------- */
+  .override-panel { border-color: var(--danger); background: rgba(40, 5, 5, 0.4); }
+  .override-panel::before { background: var(--danger); }
+  .override-panel .panel-header { color: var(--danger); border-bottom-color: var(--danger-glow); }
+  .btn-massive { height: 100%; min-height: 120px; font-size: 18px; letter-spacing: 3px; background: rgba(255, 77, 79, 0.1); border: 2px dashed var(--danger); color: var(--danger); text-shadow: 0 0 10px var(--danger-glow); }
+  .btn-massive:hover { background: var(--danger); color: #000; box-shadow: 0 0 30px var(--danger-glow); border-style: solid; }
+
+  /* ---------- Subject DB Table Styling ---------- */
+  .db-panel { background: rgba(0, 15, 20, 0.8); border: 1px solid var(--cyan-dim); border-radius: 8px; padding: 20px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .db-search { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--cyan-dim); border-radius: 4px; color: var(--white); font-family: var(--font-display); margin-bottom: 20px; outline: none; }
+  .db-search:focus { border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+  
+  .db-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .db-table th { font-family: var(--font-display); font-size: 10px; color: var(--cyan-dim); letter-spacing: 1px; padding: 12px; border-bottom: 2px solid var(--cyan-dim); }
+  .db-table td { font-family: var(--font-body); font-size: 13px; color: var(--white); padding: 14px 12px; border-bottom: 1px dashed rgba(38, 232, 245, 0.1); }
+  .db-table tr:hover td { background: rgba(38, 232, 245, 0.05); }
+  
+  .status-badge { font-family: var(--font-display); font-size: 9px; font-weight: bold; letter-spacing: 1px; padding: 4px 8px; border-radius: 4px; }
+  .badge-pass { background: rgba(61, 255, 164, 0.1); color: var(--green); border: 1px solid var(--green); }
+  .badge-fail { background: rgba(255, 77, 79, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+  .badge-warn { background: rgba(255, 176, 32, 0.1); color: var(--amber); border: 1px solid var(--amber); }
+
+  /* ---------- Telemetry Graphs (Fake CSS Bars) ---------- */
+  .graph-container { display: flex; align-items: flex-end; gap: 4px; height: 100px; width: 100%; margin-top: 10px; border-bottom: 1px solid var(--cyan-dim); }
+  .graph-bar { flex: 1; background: var(--cyan); opacity: 0.8; border-radius: 2px 2px 0 0; animation: graphDance 1.5s infinite ease-in-out alternate; }
+  .graph-bar:nth-child(odd) { background: var(--cyan-soft); animation-delay: 0.2s; }
+  .graph-bar:nth-child(3n) { background: var(--amber); animation-delay: 0.4s; }
+  @keyframes graphDance { 0% { height: 10%; } 100% { height: 90%; } }
+
+  /* Lock Screen Overlay */
+  #lockdown-overlay { position: fixed; inset: 0; background: rgba(20, 0, 0, 0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  #lockdown-overlay.active { opacity: 1; pointer-events: all; }
+  .lock-text { font-family: var(--font-display); font-size: 48px; color: var(--danger); letter-spacing: 5px; animation: blink 1s infinite; text-shadow: 0 0 30px var(--danger-glow);}
+  @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0.3;} }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+  @media (max-width: 900px) {
+    .app-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; padding: 16px; overflow-x: auto; align-items: center; border-right: none; border-bottom: 1px solid var(--cyan-dim); }
+    .brand-area { border-bottom: none; border-right: 1px solid var(--cyan-dim); padding: 0 20px 0 0; margin: 0; }
+    .nav-menu { flex-direction: row; }
+    .admin-profile { display: none; }
+    .db-table { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+</style>
+</head>
+<body data-page="admin">
+
+<!-- GLOBAL LOCKDOWN OVERLAY -->
+<div id="lockdown-overlay">
+  <div class="lock-text">SYSTEM LOCKDOWN</div>
+  <div style="color: white; font-family: 'Courier New'; margin-top: 20px; font-size: 16px;">AUTHORIZATION REQUIRED TO REBOOT</div>
+  <button class="btn-action" style="margin-top: 40px; border-color: white; color: white;" onclick="location.reload()">REBOOT SYSTEM</button>
+</div>
+
+<div class="app-container">
+  
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand-area">
+      <div class="brand-title">ZERO-G LABS</div>
+      <div class="brand-sub">COMMAND CENTER</div>
+    </div>
+    
+    <div class="nav-menu">
+      <div class="nav-item active" data-target="view-overview">OVERVIEW</div>
+      <div class="nav-item" data-target="view-telemetry">TELEMETRY</div>
+      <div class="nav-item" data-target="view-database">SUBJECT DB</div>
+      <div class="nav-item" onclick="window.location.href='01-idle.html'">EXIT ADMIN</div>
+    </div>
+
+    <div class="admin-profile">
+      <div class="avatar">A</div>
+      <div class="admin-info">
+        <span class="admin-name">ADMIN NODE</span>
+        <span class="admin-role">SYSTEM ARCHITECT</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-content">
+    
+    <div class="header-row">
+      <div class="page-title" id="dynamic-title">SYSTEM DASHBOARD</div>
+      <div class="sys-clock" id="sys-clock">00:00:00</div>
+    </div>
+
+    <!-- 1. OVERVIEW VIEW (Default) -->
+    <div id="view-overview" class="view-section grid-view active">
+      <!-- CARD 1: Master System Control -->
+      <div class="panel-card">
+        <div class="panel-header"><span>[ MASTER ENGINE ]</span><span id="engine-status" style="color: var(--cyan); font-size: 10px;">ONLINE</span></div>
+        <div class="panel-body">
+          <div class="control-group">
+            <div class="control-header"><span class="control-label">SIMULATION ENGINE CORE</span><label class="switch"><input type="checkbox" id="tog-engine" checked><span class="slider"></span></label></div>
+          </div>
+          <div class="control-group" style="margin-top: 10px;">
+            <div class="control-header"><span class="control-label">DATA LOGGING MODULE</span><label class="switch"><input type="checkbox" id="tog-log" checked><span class="slider"></span></label></div>
+          </div>
+          <div class="control-group" style="margin-top: 10px;">
+            <div class="control-header"><span class="control-label">MAINTENANCE MODE</span><label class="switch"><input type="checkbox" id="tog-maint"><span class="slider"></span></label></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Environment Modifiers -->
+      <div class="panel-card">
+        <div class="panel-header"><span>[ ENVIRONMENT CONTROLS ]</span></div>
+        <div class="panel-body">
+          <div class="control-group">
+            <div class="control-header"><span class="control-label">GRAVITY MODIFIER</span><span class="control-value" id="val-grav">1.0 G</span></div>
+            <input type="range" id="slider-grav" min="0" max="3" step="0.1" value="1.0">
+          </div>
+          <div class="control-group">
+            <div class="control-header"><span class="control-label">MAGNETIC FLUX</span><span class="control-value val-amber" id="val-flux">50%</span></div>
+            <input type="range" id="slider-flux" min="0" max="100" step="1" value="50">
+          </div>
+          <div class="control-group">
+            <div class="control-header"><span class="control-label">ROTATION SPEED</span><span class="control-value" id="val-rot">20 RPM</span></div>
+            <input type="range" id="slider-rot" min="0" max="100" step="5" value="20">
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: Subject Management -->
+      <div class="panel-card">
+        <div class="panel-header"><span>[ ACTIVE SUBJECT ]</span></div>
+        <div class="panel-body">
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px;">
+            <div class="control-label">CURRENT EXPLORER:</div>
+            <div style="font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--cyan); text-transform: uppercase;" id="admin-subj-name">NO SUBJECT</div>
+            <div class="control-label" style="font-size: 9px; margin-top: 4px;">ID: <span id="admin-subj-id">N/A</span></div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: auto;">
+            <button class="btn-action" style="flex: 1;" onclick="logTerminal('PINGING SUBJECT HEADSET...', 'sys')">PING HUD</button>
+            <button class="btn-action btn-danger" style="flex: 1;" id="btn-clear-subj">CLEAR SESSION</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4: System Logs -->
+      <div class="panel-card" style="grid-column: span auto;">
+        <div class="panel-header"><span>[ LIVE SYSTEM LOGS ]</span></div>
+        <div class="panel-body" style="padding: 10px;">
+          <div class="terminal-box" id="terminal-log">
+            <div class="log-line"><span class="time">00:00:00</span> <span class="sys">[SYS]</span> INITIALIZING COMMAND CENTER...</div>
+            <div class="log-line"><span class="time">00:00:01</span> <span class="sys">[SYS]</span> ALL NODES SECURE.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 5: Emergency Override -->
+      <div class="panel-card override-panel">
+        <div class="panel-header"><span>[ CRITICAL OVERRIDE ]</span></div>
+        <div class="panel-body">
+          <button class="btn-action btn-massive" id="btn-lockdown">TRIGGER GLOBAL LOCKDOWN</button>
+        </div>
+      </div>
+    </div> <!-- End Overview -->
+
+    <!-- 2. TELEMETRY VIEW -->
+    <div id="view-telemetry" class="view-section grid-view">
+      
+      <div class="panel-card" style="grid-column: 1 / -1;">
+        <div class="panel-header"><span>[ LIVE SENSOR WAVES ]</span><span style="color: var(--cyan); font-size: 10px;">STREAMING...</span></div>
+        <div class="panel-body">
+          <div class="control-label">X-Y-Z AXIS DEVIATION GRAPH</div>
+          <div class="graph-container">
+            <!-- Simulated Waveform -->
+            <div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div>
+            <div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div>
+            <div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div>
+            <div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div><div class="graph-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-header"><span>[ NETWORK NODE LATENCY ]</span></div>
+        <div class="panel-body">
+          <div class="control-group"><div class="control-header"><span class="control-label">MAIN SERVER HUB</span><span class="control-value" style="color: var(--green);">12ms</span></div></div>
+          <div class="control-group"><div class="control-header"><span class="control-label">GYRO SENSOR 01</span><span class="control-value" style="color: var(--green);">08ms</span></div></div>
+          <div class="control-group"><div class="control-header"><span class="control-label">GYRO SENSOR 02</span><span class="control-value" style="color: var(--green);">09ms</span></div></div>
+          <div class="control-group"><div class="control-header"><span class="control-label">VISUAL RENDERER</span><span class="control-value val-amber">45ms</span></div></div>
+          <div class="control-group"><div class="control-header"><span class="control-label">BACKUP DATABASE</span><span class="control-value" style="color: var(--danger);">DISCONNECTED</span></div></div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-header"><span>[ HARDWARE CALIBRATION ]</span></div>
+        <div class="panel-body">
+          <div class="control-group">
+            <div class="control-header"><span class="control-label">GYRO SENSITIVITY</span><span class="control-value">HIGH</span></div>
+            <input type="range" min="1" max="100" value="85">
+          </div>
+          <div class="control-group" style="margin-top: 15px;">
+            <div class="control-header"><span class="control-label">ACTUATOR POWER</span><span class="control-value">70%</span></div>
+            <input type="range" min="1" max="100" value="70">
+          </div>
+          <button class="btn-action" style="margin-top: auto;" onclick="logTerminal('HARDWARE RECALIBRATED', 'sys')">SYNC HARDWARE</button>
+        </div>
+      </div>
+    </div> <!-- End Telemetry -->
+
+    <!-- 3. SUBJECT DB VIEW -->
+    <div id="view-database" class="view-section block-view">
+      <div class="db-panel">
+        <input type="text" class="db-search" placeholder="SEARCH SUBJECT ID OR NAME...">
+        <table class="db-table">
+          <thead>
+            <tr>
+              <th>SUBJECT ID</th>
+              <th>NAME</th>
+              <th>TEST DATE</th>
+              <th>BALANCE SCORE</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dummy Data Including Easter Eggs -->
+            <tr>
+              <td>#SUB-9012</td>
+              <td style="font-weight: bold; color: var(--cyan);">MD. SHAIKAT</td>
+              <td>2026-08-10</td>
+              <td>98%</td>
+              <td><span class="status-badge badge-pass">PASSED</span></td>
+            </tr>
+            <tr>
+              <td>#SUB-9011</td>
+              <td style="font-weight: bold; color: var(--cyan);">BUSH</td>
+              <td>2026-08-09</td>
+              <td>95%</td>
+              <td><span class="status-badge badge-pass">PASSED</span></td>
+            </tr>
+            <tr>
+              <td>#SUB-8845</td>
+              <td>ALEX MERCER</td>
+              <td>2026-08-08</td>
+              <td>42%</td>
+              <td><span class="status-badge badge-fail">FAILED</span></td>
+            </tr>
+            <tr>
+              <td>#SUB-8844</td>
+              <td>ELARA VANCE</td>
+              <td>2026-08-08</td>
+              <td>76%</td>
+              <td><span class="status-badge badge-warn">BORDERLINE</span></td>
+            </tr>
+            <tr>
+              <td>#SUB-8801</td>
+              <td>ZANE HUXLEY</td>
+              <td>2026-08-05</td>
+              <td>88%</td>
+              <td><span class="status-badge badge-pass">PASSED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> <!-- End Database -->
+
+  </main>
+</div>
+
+<script>
+  // 1. Clock Logic
+  function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    document.getElementById('sys-clock').textContent = timeString;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // 2. Terminal Logger Helper
+  const termBox = document.getElementById('terminal-log');
+  function logTerminal(msg, type = 'info') {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US', { hour12: false });
+    const div = document.createElement('div');
+    div.className = 'log-line';
+    
+    let tag = '';
+    if(type === 'sys') tag = '<span class="sys" style="color: var(--amber);">[SYS]</span>';
+    else if(type === 'warn') tag = '<span class="sys" style="color: var(--danger);">[WARN]</span>';
+    else tag = '<span class="sys" style="color: var(--cyan-soft);">[CMD]</span>';
+
+    div.innerHTML = `<span class="time">${time}</span> ${tag} ${msg}`;
+    if(termBox) {
+      termBox.appendChild(div);
+      termBox.scrollTop = termBox.scrollHeight;
+    }
+  }
+
+  // 3. Tab Navigation Logic (SWITCHING VIEWS)
+  const navItems = document.querySelectorAll('.nav-menu .nav-item[data-target]');
+  const views = document.querySelectorAll('.view-section');
+  const pageTitle = document.getElementById('dynamic-title');
+
+  navItems.forEach(item => {
+    item.addEventListener('click', function() {
+      // Remove active from all tabs
+      navItems.forEach(nav => nav.classList.remove('active'));
+      // Add active to clicked tab
+      this.classList.add('active');
+      
+      // Update Title
+      if(this.textContent === 'OVERVIEW') pageTitle.textContent = "SYSTEM DASHBOARD";
+      else if(this.textContent === 'TELEMETRY') pageTitle.textContent = "TELEMETRY & SENSORS";
+      else if(this.textContent === 'SUBJECT DB') pageTitle.textContent = "SUBJECT DATABASE";
+
+      // Hide all views
+      views.forEach(view => view.classList.remove('active'));
+      
+      // Show targeted view
+      const targetId = this.getAttribute('data-target');
+      document.getElementById(targetId).classList.add('active');
+
+      logTerminal("SWITCHED MODULE: " + this.textContent, "sys");
+    });
+  });
+
+  // 4. Toggles Logic
+  document.getElementById('tog-engine').addEventListener('change', function(e) {
+    const statusText = document.getElementById('engine-status');
+    if(e.target.checked) {
+      statusText.textContent = "ONLINE"; statusText.style.color = "var(--cyan)";
+      logTerminal("MAIN SIMULATION ENGINE STARTED", "sys");
+    } else {
+      statusText.textContent = "OFFLINE"; statusText.style.color = "var(--danger)";
+      logTerminal("MAIN SIMULATION ENGINE HALTED", "warn");
+    }
+  });
+  document.getElementById('tog-maint').addEventListener('change', function(e) {
+    if(e.target.checked) logTerminal("MAINTENANCE MODE ENGAGED. ACCESS RESTRICTED.", "warn");
+    else logTerminal("MAINTENANCE MODE DISABLED.", "sys");
+  });
+
+  // 5. Sliders Logic
+  const sliders = [
+    { id: 'slider-grav', valId: 'val-grav', suffix: ' G', log: 'GRAVITY MODIFIED TO ' },
+    { id: 'slider-flux', valId: 'val-flux', suffix: '%', log: 'MAGNETIC FLUX SET TO ' },
+    { id: 'slider-rot', valId: 'val-rot', suffix: ' RPM', log: 'ROTATION SPEED SET TO ' }
+  ];
+  sliders.forEach(s => {
+    const slider = document.getElementById(s.id);
+    const valText = document.getElementById(s.valId);
+    if(slider && valText) {
+      slider.addEventListener('input', (e) => { valText.textContent = e.target.value + s.suffix; });
+      slider.addEventListener('change', (e) => { logTerminal(s.log + e.target.value + s.suffix); });
+    }
+  });
+
+  // 6. Subject Management (LocalStorage)
+  function loadSubject() {
+    const name = localStorage.getItem('explorerName') || "NO SUBJECT";
+    const phone = localStorage.getItem('explorerPhone') || "N/A";
+    const nameEl = document.getElementById('admin-subj-name');
+    const idEl = document.getElementById('admin-subj-id');
+    if(nameEl) nameEl.textContent = name;
+    if(idEl) idEl.textContent = phone;
+  }
+  loadSubject(); // Load on start
+
+  const btnClear = document.getElementById('btn-clear-subj');
+  if(btnClear) {
+    btnClear.addEventListener('click', function() {
+      localStorage.removeItem('explorerName');
+      localStorage.removeItem('explorerPhone');
+      loadSubject();
+      logTerminal("ACTIVE SUBJECT DATA CLEARED FROM SYSTEM", "warn");
+    });
+  }
+
+  // 7. Global Lockdown Override
+  const btnLockdown = document.getElementById('btn-lockdown');
+  if(btnLockdown) {
+    btnLockdown.addEventListener('click', function() {
+      logTerminal("!!! CRITICAL OVERRIDE INITIATED !!!", "warn");
+      setTimeout(() => {
+        document.getElementById('lockdown-overlay').classList.add('active');
+      }, 500);
+    });
+  }
+
+</script>
+</body>
+</html>
