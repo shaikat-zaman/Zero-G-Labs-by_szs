@@ -24,6 +24,8 @@
     --danger: #ff4d4f;
     --danger-glow: rgba(255, 77, 79, .5);
 
+    --green: #35f0a1;
+
     --white: #eaf6f7;
     --text-dim: #5c7c80;
     --text-mid: #93b3b6;
@@ -40,6 +42,12 @@
     font-family: var(--font-body); -webkit-font-smoothing: antialiased;
     height: 100%;
     overflow: hidden; /* স্ক্রল সম্পূর্ণ বন্ধ */
+  }
+
+  /* NOTE: OS "Reduce motion" ON disables ring spin / pulse / cog drift. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .cog { transition: none !important; }
   }
 
   /* ---------- Full-bleed app screen ---------- */
@@ -95,22 +103,38 @@
   }
   .btn-abort:hover { background: var(--danger); color: #000; box-shadow: 0 0 12px var(--danger-glow); }
 
-  /* ---------- Main Layout (Sidebar + Core) ---------- */
+  /* ---------- Main Layout (3 Columns) ---------- */
   .main-wrapper {
-    flex: 1; display: flex; width: 100%; max-width: 1200px; margin: 0 auto;
+    flex: 1; display: flex; width: 100%; max-width: 1400px; margin: 0 auto;
     gap: clamp(12px, 2vw, 24px); min-height: 0; padding-top: clamp(8px, 1.5vh, 16px);
   }
 
-  /* ---------- LEFT SIDEBAR (Menu Bar) ---------- */
-  .sidebar {
+  /* ---------- LEFT SIDEBAR (Menu Bar) & RIGHT LIVE PANEL — shared layout only ---------- */
+  .sidebar, .live-panel {
     width: clamp(200px, 22vw, 260px); flex: none; display: flex; flex-direction: column;
-    gap: 16px; background: rgba(0, 10, 12, 0.6); border: 1px solid var(--cyan-dim);
-    border-radius: 8px; padding: 16px; box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
-    backdrop-filter: blur(4px); overflow-y: auto; overflow-x: hidden;
+    gap: 16px; padding: 16px; overflow-y: auto; overflow-x: hidden;
   }
-  /* Hide scrollbar for clean UI */
-  .sidebar::-webkit-scrollbar { display: none; }
-  .sidebar { -ms-overflow-style: none; scrollbar-width: none; }
+  .sidebar::-webkit-scrollbar, .live-panel::-webkit-scrollbar { display: none; }
+
+  /* Control panel now sits directly on the grid — no plate behind it */
+  /* Control Panel updated with solid Navy Blue background */
+  /* Control Panel updated with DARKER solid Navy Blue background */
+  .sidebar {
+    background: #00050c; /* আগের চেয়ে আরও ডার্ক নেভি ব্লু */
+    border: 1px solid var(--cyan-dim);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    backdrop-filter: none;
+  }
+
+  /* Live feed panel keeps its console plate */
+  .live-panel {
+    background: rgba(0, 10, 12, 0.6);
+    border: 1px solid var(--cyan-dim);
+    border-radius: 8px;
+    box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+  }
 
   .sb-header {
     font-family: var(--font-display); font-weight: 700; font-size: clamp(10px, 1.4vmin, 12px);
@@ -119,28 +143,26 @@
   }
 
   .ctrl-block { display: flex; flex-direction: column; gap: 8px; }
-  .ctrl-label {
-    display: flex; justify-content: space-between; align-items: center;
-    font-family: var(--font-display); font-size: 9px; color: var(--text-dim); letter-spacing: 1px;
-  }
+  .ctrl-label { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
   .ctrl-val { color: var(--amber); font-weight: 700; text-shadow: 0 0 6px var(--amber-glow); }
 
-  /* Slider UI (Brightness Style) */
   input[type=range] {
-    -webkit-appearance: none; width: 100%; height: 10px; background: rgba(38, 232, 245, 0.1);
-    border-radius: 6px; outline: none; border: 1px solid var(--cyan-dim);
-    overflow: hidden; cursor: pointer;
+    -webkit-appearance: none; 
+    width: 100%; 
+    height: 10px; 
+    background: rgba(38, 232, 245, 0.1);
+    border-radius: 6px; 
+    outline: none; 
+    border: 1px solid var(--cyan-dim); 
+    cursor: pointer;
+    overflow: hidden; /* <--- এই লাইনটি যুক্ত করা হয়েছে বিশাল ছায়া আটকাতে */
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
-    background: var(--cyan); cursor: pointer;
-    box-shadow: -400px 0 0 395px rgba(38, 232, 245, 0.3); /* The cool fill hack */
+    background: var(--cyan); cursor: pointer; box-shadow: -400px 0 0 395px rgba(38, 232, 245, 0.3);
   }
-  #intensity-slider::-webkit-slider-thumb {
-    background: var(--amber); box-shadow: -400px 0 0 395px rgba(255, 176, 32, 0.3);
-  }
+  #intensity-slider::-webkit-slider-thumb { background: var(--amber); box-shadow: -400px 0 0 395px rgba(255, 176, 32, 0.3); }
 
-  /* Duration Buttons in Sidebar */
   .btn-grp { display: flex; gap: 6px; }
   .btn-opt {
     flex: 1; background: transparent; border: 1px solid var(--cyan-dim); color: var(--text-mid);
@@ -150,41 +172,27 @@
   .btn-opt:hover { background: rgba(38, 232, 245, 0.1); border-color: var(--cyan); color: var(--cyan); }
   .btn-opt.active { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan-glow); border-color: var(--cyan); }
 
-  /* Sci-Fi Toggle Switch */
-  .switch-row { display: flex; justify-content: space-between; align-items: center; }
   .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(255, 255, 255, 0.1); border-radius: 18px; border: 1px solid var(--cyan-dim);
-    transition: .3s;
-  }
-  .slider:before {
-    position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px;
-    background-color: var(--text-dim); border-radius: 50%; transition: .3s;
-  }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.1); border-radius: 18px; border: 1px solid var(--cyan-dim); transition: .3s; }
+  .slider:before { position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px; background-color: var(--text-dim); border-radius: 50%; transition: .3s; }
   .switch input:checked + .slider { background-color: rgba(38, 232, 245, 0.2); border-color: var(--cyan); }
   .switch input:checked + .slider:before { transform: translateX(18px); background-color: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
 
-
-  /* ---------- CORE SIMULATION AREA ---------- */
+  /* ---------- CORE SIMULATION AREA (Center) ---------- */
   .simulation-core {
     flex: 1; display: flex; flex-direction: column; min-width: 0;
     align-items: center; justify-content: space-between;
   }
 
-  /* ---------- Heading ---------- */
   .heading {
     font-family: var(--font-display); font-weight: 700; 
     font-size: clamp(16px, 3vmin, 26px); letter-spacing: 2px;
-    color: var(--amber); text-align: center; text-shadow: 0 0 16px var(--amber-glow);
-    margin: 0 0 10px 0; flex: none;
+    color: var(--amber); text-align: center; text-shadow: 0 0 16px var(--amber-glow); margin: 0 0 10px 0; flex: none;
   }
 
-  /* ---------- Live Directive & Timer Box ---------- */
   .directive-panel {
-    width: 100%; max-width: 500px; flex: none;
-    background: rgba(0, 10, 12, 0.5); 
+    width: 100%; max-width: 500px; flex: none; background: rgba(0, 10, 12, 0.5); 
     border: 1px solid var(--cyan-dim); border-left: 4px solid var(--cyan);
     border-radius: 4px; padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
     display: flex; flex-direction: column; gap: 6px; margin-bottom: clamp(6px, 1vh, 10px);
@@ -195,7 +203,7 @@
   .timer-bar-fill { height: 100%; width: 100%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); transition: width 1s linear; }
   .directive-text { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: clamp(9px, 1.2vmin, 12px); color: var(--white); letter-spacing: 1px; }
 
-  /* ---------- Radar Area ---------- */
+  /* Center Radar Area */
   .radar-wrap {
     flex: 1; display: flex; justify-content: center; align-items: center;
     width: 100%; min-height: 0; margin: 0 0 clamp(10px, 2vh, 20px) 0;
@@ -208,34 +216,28 @@
   .r-tick { stroke: var(--cyan-soft); stroke-width: 1; opacity: .55; }
   .r-cross { stroke: var(--cyan); stroke-width: 1.2; opacity: .75; }
   .r-arrow { fill: var(--cyan-soft); opacity: .9; }
-  .r-center { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); animation: pulseDot 1.9s ease-in-out infinite; }
-  @keyframes pulseDot { 0%, 100% { r: 3.2; opacity: 1; } 50% { r: 4.6; opacity: .6; } }
-
-  .cog { transition: transform 0.4s cubic-bezier(.22, .61, .36, 1); }
+  .r-center { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); }
+  .cog { transition: transform 0.2s linear; }
   .cog-dot { fill: var(--amber); filter: drop-shadow(0 0 10px var(--amber-glow)); transition: r 0.2s ease, fill 0.2s ease; }
   .cog-label { font-family: var(--font-display); font-weight: 600; font-size: 9px; letter-spacing: 2px; fill: var(--white); text-anchor: middle; }
 
-  /* ---------- Advanced HUD Dashboard ---------- */
+  /* Advanced HUD Dashboard */
   .hud-dashboard {
     display: flex; align-items: stretch; justify-content: center;
     gap: clamp(8px, 1.5vw, 16px); width: 100%; flex: none;
     margin-bottom: clamp(10px, 2vh, 16px);
   }
-
   .stat-box {
-    position: relative; flex: 1; max-width: 140px; 
-    padding: clamp(6px, 1.2vmin, 10px); text-align: center;
+    position: relative; flex: 1; max-width: 140px; padding: clamp(6px, 1.2vmin, 10px); text-align: center;
     border: 1px solid var(--cyan-dim); border-radius: 6px; background: rgba(38, 232, 245, .03);
     display: flex; flex-direction: column; justify-content: space-between; align-items: center;
   }
   .stat-box::before, .stat-box::after { content: ""; position: absolute; width: 6px; height: 6px; border-color: var(--cyan); opacity: .75; }
   .stat-box::before { top: -1px; left: -1px; border-top: 1.5px solid var(--cyan); border-left: 1.5px solid var(--cyan); }
   .stat-box::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid var(--cyan); border-right: 1.5px solid var(--cyan); }
-  
   .stat-label { font-family: var(--font-display); font-weight: 500; font-size: clamp(8px, 1.1vmin, 10px); letter-spacing: 2px; color: var(--text-dim); }
   .stat-value { font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 2.2vmin, 20px); letter-spacing: 1px; color: var(--white); text-shadow: 0 0 10px var(--cyan-glow); margin: 4px 0; }
   
-  /* Live Wave Graph */
   .wave-graph { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 16px; width: 100%; opacity: 0.7; }
   .wave-bar { width: 4px; background: var(--cyan); border-radius: 1px; transition: height 0.1s ease; }
   .wave-amber .wave-bar { background: var(--amber); }
@@ -244,14 +246,13 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: rgba(38, 232, 245, 0.1); border: 1.5px solid var(--cyan); border-radius: 12px; 
     padding: clamp(6px, 1vmin, 10px) clamp(16px, 3vmin, 24px);
-    box-shadow: inset 0 0 16px rgba(38, 232, 245, 0.2), 0 0 20px var(--cyan-glow);
-    min-width: clamp(120px, 20vw, 160px);
+    box-shadow: inset 0 0 16px rgba(38, 232, 245, 0.2), 0 0 20px var(--cyan-glow); min-width: clamp(120px, 20vw, 160px);
   }
   .balance-label { font-family: var(--font-display); font-weight: 600; font-size: clamp(9px, 1.2vmin, 11px); color: var(--cyan); letter-spacing: 2px; margin-bottom: 2px; }
   .balance-value { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 4vmin, 32px); color: var(--white); text-shadow: 0 0 12px var(--cyan-glow); }
   .gforce-text { font-family: var(--font-display); font-size: clamp(8px, 1vmin, 10px); color: var(--amber); letter-spacing: 1px; margin-top: 4px; }
 
-  /* ---------- Emergency stop Button ---------- */
+  /* Emergency stop Button */
   .estop-row { display: flex; justify-content: center; width: 100%; flex: none; margin-bottom: 4px; }
   .btn-estop {
     width: 100%; max-width: 400px; font-family: var(--font-display); font-weight: 700; 
@@ -263,6 +264,85 @@
   @keyframes estopGlow { 0%, 100% { box-shadow: 0 0 16px var(--danger-glow); } 50% { box-shadow: 0 0 28px var(--danger-glow); } }
   .btn-estop.halted { background: var(--text-dim); color: #0a1516; box-shadow: none; animation: none; pointer-events: none; }
 
+
+  /* ---------- RIGHT SIDEBAR (Live Human & Platform Feed) ---------- */
+  .human-display-wrap {
+    flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.4); border-radius: 8px; border: 1px dashed var(--cyan-dim);
+    position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  }
+  .human-svg { width: 100%; height: 100%; max-height: 300px; display: block; overflow: visible; }
+
+  /* ===== Artificial-horizon instrument (sky/ground attitude gauge) ===== */
+  .horizon-line { transition: transform 0.15s linear; transform-origin: 100px 148px; }
+  .sky-rect { fill: url(#skyGrad); }
+  .ground-rect { fill: url(#groundGrad); }
+  .horizon-main-line { stroke: var(--cyan); stroke-width: 1.4; filter: drop-shadow(0 0 4px var(--cyan-glow)); }
+  .pitch-ladder line { stroke: rgba(234, 246, 247, .35); stroke-width: 1; }
+  .pitch-ladder text { font-family: var(--font-display); font-size: 6px; fill: var(--text-mid); text-anchor: middle; }
+
+  .horizon-bezel { fill: none; stroke: var(--cyan-dim); stroke-width: 1.5; opacity: .7; }
+  .horizon-ticks line { stroke: var(--cyan-soft); stroke-width: 1; opacity: .5; }
+  .horizon-ticks line.major { stroke-width: 1.4; opacity: .8; }
+
+  .horizon-reticle line { stroke: var(--amber); stroke-width: 2.6; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--amber-glow)); }
+  .horizon-reticle circle { fill: none; stroke: var(--amber); stroke-width: 1.6; filter: drop-shadow(0 0 5px var(--amber-glow)); }
+
+  /* Platform */
+  .platform-base { fill: rgba(38, 232, 245, 0.1); stroke: var(--cyan); stroke-width: 1.5; filter: drop-shadow(0 0 8px rgba(38, 232, 245, 0.3)); }
+  .platform-pivot { fill: var(--amber); filter: drop-shadow(0 0 5px var(--amber-glow)); }
+  .pivot-gauge { fill: none; stroke: var(--cyan-dim); stroke-width: 1; opacity: .55; }
+  .board-part { fill: var(--cyan-dim); stroke: var(--cyan); stroke-width: 2; filter: drop-shadow(0 0 8px var(--cyan-glow)); }
+  .board-grip { fill: rgba(234, 246, 247, .25); }
+  .foot-part { fill: var(--cyan-dim); stroke: var(--cyan); stroke-width: 1.4; filter: drop-shadow(0 0 4px var(--cyan-glow)); transition: stroke .2s ease, fill .2s ease; }
+
+  /* ===== Motion-capture-style human rig (anatomically proportioned) ===== */
+  .body-silhouette {
+    fill: rgba(38, 232, 245, .08); stroke: var(--cyan); stroke-width: 1.6;
+    stroke-linejoin: round; filter: drop-shadow(0 0 6px var(--cyan-glow));
+    transition: stroke .2s ease, fill .2s ease, filter .2s ease;
+  }
+  .clavicle-line { stroke: var(--cyan-soft); stroke-width: 1; opacity: .6; }
+  .head-part { fill: var(--cyan); filter: drop-shadow(0 0 6px var(--cyan-glow)); transition: fill 0.2s ease, filter 0.2s ease; }
+
+  .bone-thigh, .bone-shin, .bone-upper-arm, .bone-forearm {
+    stroke: var(--cyan); stroke-linecap: round; filter: drop-shadow(0 0 5px var(--cyan-glow));
+    transition: stroke .2s ease, filter .2s ease;
+  }
+  .bone-thigh, .bone-upper-arm { stroke-width: 8; }
+  .bone-shin, .bone-forearm { stroke-width: 6; }
+
+  .joint { fill: var(--white); stroke: var(--cyan); stroke-width: 1.2; filter: drop-shadow(0 0 4px var(--cyan-glow)); transition: fill .2s ease, stroke .2s ease; }
+  .hip-joint, .shoulder-joint { fill: var(--amber); stroke: var(--amber); filter: drop-shadow(0 0 5px var(--amber-glow)); }
+
+  /* Glitch colors — horizon instrument, platform, and human rig */
+  .glitch-active .sky-rect { fill: rgba(255, 77, 79, .18); }
+  .glitch-active .ground-rect { fill: rgba(120, 10, 10, .5); }
+  .glitch-active .horizon-main-line { stroke: var(--danger); filter: drop-shadow(0 0 4px var(--danger-glow)); }
+  .glitch-active .horizon-bezel { stroke: var(--danger); }
+  .glitch-active .horizon-ticks line { stroke: var(--danger); }
+  .glitch-active .horizon-reticle line, .glitch-active .horizon-reticle circle { stroke: var(--danger); filter: drop-shadow(0 0 6px var(--danger-glow)); }
+
+  .glitch-active .board-part { stroke: var(--danger); fill: rgba(255, 77, 79, 0.1); filter: drop-shadow(0 0 10px var(--danger-glow)); }
+  .glitch-active .board-grip { fill: rgba(255, 77, 79, .4); }
+  .glitch-active .foot-part { stroke: var(--danger); fill: rgba(255, 77, 79, .12); }
+  .glitch-active .platform-base { stroke: var(--danger); fill: rgba(255, 77, 79, 0.1); }
+  .glitch-active .platform-pivot { fill: var(--danger); filter: drop-shadow(0 0 5px var(--danger-glow)); }
+  .glitch-active .pivot-gauge { stroke: var(--danger); }
+
+  .glitch-active .body-silhouette { stroke: var(--danger); fill: rgba(255, 77, 79, .12); filter: drop-shadow(0 0 10px var(--danger-glow)); }
+  .glitch-active .head-part { fill: var(--danger); filter: drop-shadow(0 0 10px var(--danger-glow)); }
+  .glitch-active .clavicle-line { stroke: var(--danger); }
+  .glitch-active .bone-thigh, .glitch-active .bone-shin,
+  .glitch-active .bone-upper-arm, .glitch-active .bone-forearm { stroke: var(--danger); filter: drop-shadow(0 0 10px var(--danger-glow)); }
+  .glitch-active .joint { stroke: var(--danger); }
+  .glitch-active .hip-joint, .glitch-active .shoulder-joint { fill: var(--danger); stroke: var(--danger); }
+
+  /* Smooth Transforms for Physics */
+  #live-rig-group { transform-origin: 100px 240px; transition: transform 0.15s linear; }
+  #live-upper { transform-origin: 100px 160px; transition: transform 0.15s linear; }
+  #live-arms { transform-origin: 100px 95px; transition: transform 0.15s linear; }
+
   /* ---------- Footer ---------- */
   .statusbar {
     flex: none; margin-top: clamp(6px, 1vh, 12px); padding-top: clamp(6px, 1.5vmin, 10px);
@@ -270,15 +350,11 @@
     font-size: clamp(8px, 1.1vmin, 11px); letter-spacing: 1px; color: var(--cyan-dim); text-align: center; z-index: 10;
   }
 
-  /* Responsive layout for mobile: Sidebar becomes a horizontal swipeable menu at the top */
-  @media (max-width: 768px) {
-    .main-wrapper { flex-direction: column; gap: 10px; }
-    .sidebar {
-      width: 100%; height: auto; flex-direction: row; align-items: center; padding: 12px; gap: 24px;
-      overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
-    }
-    .ctrl-block { min-width: 180px; scroll-snap-align: start; }
-    .sb-header { display: none; } /* Hide title on mobile to save space */
+  @media (max-width: 950px) {
+    .main-wrapper { flex-direction: column; align-items: center; gap: 10px; overflow-y: auto;}
+    .sidebar, .live-panel { width: 100%; height: auto; max-width: 700px;}
+    .sidebar { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .ctrl-block { flex: 1; min-width: 140px; }
   }
 </style>
 </head>
@@ -302,17 +378,15 @@
 
   <div class="main-wrapper">
     
-    <!-- ================= LEFT SIDEBAR (Menu Bar) ================= -->
+    <!-- ================= LEFT SIDEBAR (Controls) ================= -->
     <aside class="sidebar">
       <div class="sb-header">[ CONTROL_PANEL ]</div>
       
-      <!-- 1. Intensity Slider -->
       <div class="ctrl-block">
         <div class="ctrl-label"><span>SIM INTENSITY</span> <span class="ctrl-val" id="intensity-val">LVL-2</span></div>
         <input type="range" id="intensity-slider" min="1" max="3" value="2" step="1">
       </div>
 
-      <!-- 2. Duration Option -->
       <div class="ctrl-block">
         <div class="ctrl-label"><span>TEST DURATION</span></div>
         <div class="btn-grp" id="dur-btns">
@@ -322,39 +396,29 @@
         </div>
       </div>
 
-      <!-- 3. Magnetic Flux Slider -->
       <div class="ctrl-block">
         <div class="ctrl-label"><span>MAGNETIC FLUX</span> <span class="ctrl-val" id="flux-val" style="color: var(--cyan);">50%</span></div>
         <input type="range" id="flux-slider" min="0" max="100" value="50">
       </div>
 
-      <!-- 4. Gravity Dampener Toggle -->
       <div class="ctrl-block">
         <div class="ctrl-label"><span>GRAVITY DAMPENER</span>
           <label class="switch"><input type="checkbox" id="tog-gravity" checked><span class="slider"></span></label>
         </div>
       </div>
 
-      <!-- 5. Neural Sync Toggle -->
       <div class="ctrl-block">
         <div class="ctrl-label"><span>NEURAL SYNC</span>
           <label class="switch"><input type="checkbox" id="tog-neural" checked><span class="slider"></span></label>
         </div>
       </div>
-      
-      <!-- 6. Cooling System Toggle -->
-      <div class="ctrl-block">
-        <div class="ctrl-label"><span>COOLING SYS</span>
-          <label class="switch"><input type="checkbox" id="tog-cooling" checked><span class="slider"></span></label>
-        </div>
-      </div>
     </aside>
+    
 
-    <!-- ================= CORE SIMULATION AREA ================= -->
+    <!-- ================= CORE SIMULATION AREA (Center) ================= -->
     <div class="simulation-core">
       <h1 class="heading">// ACTIVE SIMULATION //</h1>
 
-      <!-- Timer & Instruction Box -->
       <div class="directive-panel">
         <div class="timer-row">
           <span class="timer-label">T-MINUS: 00:<span id="time-left">15</span></span>
@@ -380,7 +444,10 @@
           <polygon class="r-arrow" points="150,272 144,258 156,258"/>
           <polygon class="r-arrow" points="272,150 258,144 258,156"/>
           <polygon class="r-arrow" points="28,150 42,144 42,156"/>
+          
           <circle class="r-center" cx="150" cy="150" r="3.2"/>
+          
+          <!-- Yellow C.O.G Dot -->
           <g id="cog" class="cog" transform="translate(150,150)">
             <text class="cog-label" x="35" y="-38">C.O.G.</text>
             <circle class="cog-dot" cx="35" cy="-28" r="13" id="cog-dot"/>
@@ -388,7 +455,6 @@
         </svg>
       </div>
 
-      <!-- Advanced HUD Dashboard -->
       <div class="hud-dashboard">
         <div class="stat-box">
           <div class="stat-label">PITCH</div>
@@ -413,11 +479,141 @@
         </div>
       </div>
 
-      <!-- Emergency stop -->
       <div class="estop-row">
         <button class="btn-estop" id="btn-estop">[ EMERGENCY STOP ]</button>
       </div>
     </div>
+
+    <!-- ================= RIGHT SIDEBAR (Live Human & Platform Feed) ================= -->
+    <aside class="live-panel" id="live-panel">
+      <div class="sb-header">[ SPATIAL ORIENTATION VIEW ]</div>
+      
+      <div class="human-display-wrap">
+        <svg viewBox="0 0 200 300" class="human-svg">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#0a2226"/>
+              <stop offset="100%" stop-color="#1c6e7c" stop-opacity=".55"/>
+            </linearGradient>
+            <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#3a2a10" stop-opacity=".6"/>
+              <stop offset="100%" stop-color="#0a0704"/>
+            </linearGradient>
+            <clipPath id="horizonClip">
+              <circle cx="100" cy="148" r="94"/>
+            </clipPath>
+          </defs>
+
+          <!-- Artificial Horizon (sky/ground attitude gauge) -->
+          <g clip-path="url(#horizonClip)">
+            <g id="horizon-group" class="horizon-line">
+              <rect class="sky-rect"    x="-140" y="-260" width="480" height="410"/>
+              <rect class="ground-rect" x="-140" y="148"  width="480" height="410"/>
+              <line class="horizon-main-line" x1="-140" y1="148" x2="340" y2="148"/>
+              <g class="pitch-ladder">
+                <line x1="76" y1="118" x2="124" y2="118"/><text x="100" y="114">10</text>
+                <line x1="66" y1="88"  x2="134" y2="88"/><text x="100" y="84">20</text>
+                <line x1="76" y1="178" x2="124" y2="178"/><text x="100" y="188">10</text>
+                <line x1="66" y1="208" x2="134" y2="208"/><text x="100" y="218">20</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- Fixed instrument bezel + tick ring (does not rotate) -->
+          <circle class="horizon-bezel" cx="100" cy="148" r="94"/>
+          <g class="horizon-ticks">
+            <line class="major" x1="100" y1="54"  x2="100" y2="64"/>
+            <line class="major" x1="100" y1="232" x2="100" y2="242"/>
+            <line class="major" x1="6"   y1="148" x2="16"  y2="148"/>
+            <line class="major" x1="184" y1="148" x2="194" y2="148"/>
+            <line x1="33.5" y1="81.5" x2="40.6" y2="88.6"/>
+            <line x1="166.5" y1="81.5" x2="159.4" y2="88.6"/>
+            <line x1="33.5" y1="214.5" x2="40.6" y2="207.4"/>
+            <line x1="166.5" y1="214.5" x2="159.4" y2="207.4"/>
+          </g>
+
+          <!-- Fixed center reticle (aircraft-style reference symbol) -->
+          <g class="horizon-reticle">
+            <line x1="66" y1="148" x2="88" y2="148"/>
+            <line x1="112" y1="148" x2="134" y2="148"/>
+            <circle cx="100" cy="148" r="2.6"/>
+          </g>
+
+          <!-- Platform pivot tilt gauge (static reference under the board) -->
+          <g class="pivot-gauge">
+            <path d="M68,246 A32,32 0 0 1 132,246" fill="none"/>
+            <line x1="82" y1="246" x2="79" y2="235"/>
+            <line x1="100" y1="246" x2="100" y2="233"/>
+            <line x1="118" y1="246" x2="121" y2="235"/>
+          </g>
+
+          <!-- Platform Base (Static) -->
+          <polygon class="platform-base" points="75,280 125,280 110,248 90,248" />
+          <circle class="platform-pivot" cx="100" cy="248" r="4" />
+
+          <!-- Entire rig group that rotates with the board -->
+          <g id="live-rig-group">
+
+            <!-- Tilt Board -->
+            <rect class="board-part" x="18" y="244" width="164" height="6.5" rx="3.2" />
+            <rect class="board-grip" x="18" y="244.6" width="164" height="1.6" rx="0.8" />
+
+            <!-- Feet -->
+            <ellipse class="foot-part" cx="77" cy="244" rx="10" ry="3.6"/>
+            <ellipse class="foot-part" cx="123" cy="244" rx="10" ry="3.6"/>
+
+            <!-- Legs: tapered thigh + shin bone segments with knee bend -->
+            <line class="bone-thigh" x1="93"  y1="163" x2="81"  y2="204"/>
+            <line class="bone-shin"  x1="81"  y1="204" x2="77"  y2="244"/>
+            <line class="bone-thigh" x1="107" y1="163" x2="119" y2="204"/>
+            <line class="bone-shin"  x1="119" y1="204" x2="123" y2="244"/>
+
+            <!-- Hip + knee joints -->
+            <circle class="joint hip-joint"  cx="93"  cy="163" r="4"/>
+            <circle class="joint hip-joint"  cx="107" cy="163" r="4"/>
+            <circle class="joint knee-joint" cx="81"  cy="204" r="3.3"/>
+            <circle class="joint knee-joint" cx="119" cy="204" r="3.3"/>
+
+            <!-- Pelvis -->
+            <path class="body-silhouette" d="M85,151 L115,151 L111,165 L89,165 Z"/>
+
+            <!-- Upper body pivots to counter-balance -->
+            <g id="live-upper">
+              <!-- Torso: tapered ribcage to waist -->
+              <path class="body-silhouette" d="M81,92 Q100,85 119,92 L114,151 L86,151 Z"/>
+              <line class="clavicle-line" x1="85" y1="96" x2="115" y2="96"/>
+
+              <!-- Neck -->
+              <rect class="body-silhouette" x="93.5" y="76" width="13" height="15" rx="4.5"/>
+
+              <!-- Head -->
+              <ellipse class="head-part" cx="100" cy="65" rx="12.5" ry="14.5"/>
+
+              <!-- Arms -->
+              <g id="live-arms">
+                <line class="bone-upper-arm" x1="83"  y1="98" x2="60"  y2="121"/>
+                <line class="bone-forearm"   x1="60"  y1="121" x2="47" y2="147"/>
+                <circle class="joint shoulder-joint" cx="83" cy="98" r="4"/>
+                <circle class="joint elbow-joint"    cx="60" cy="121" r="3.2"/>
+                <circle class="joint hand-joint"     cx="47" cy="147" r="3.6"/>
+
+                <line class="bone-upper-arm" x1="117" y1="98" x2="140" y2="121"/>
+                <line class="bone-forearm"   x1="140" y1="121" x2="153" y2="147"/>
+                <circle class="joint shoulder-joint" cx="117" cy="98" r="4"/>
+                <circle class="joint elbow-joint"    cx="140" cy="121" r="3.2"/>
+                <circle class="joint hand-joint"     cx="153" cy="147" r="3.6"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="ctrl-block" style="margin-top: auto; margin-bottom: 10px;">
+        <div class="ctrl-label"><span>POSTURE</span> <span class="ctrl-val" id="posture-status" style="color: var(--cyan);">OPTIMAL</span></div>
+        <div class="ctrl-label"><span>STRESS TENSION</span> <span class="ctrl-val" id="tension-status" style="color: var(--cyan);">NOMINAL</span></div>
+      </div>
+    </aside>
+
   </div>
 
   <footer class="statusbar" id="statusbar">SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION</footer>
@@ -457,6 +653,15 @@
     var pitchBars = document.querySelectorAll('#pitch-wave .wave-bar');
     var rollBars  = document.querySelectorAll('#roll-wave .wave-bar');
 
+    // Right Panel Elements (Theme Matched)
+    var liveRigGroup  = document.getElementById('live-rig-group');
+    var liveUpper     = document.getElementById('live-upper');
+    var liveArms      = document.getElementById('live-arms');
+    var horizonLine   = document.getElementById('horizon-group');
+    var livePanelWrap = document.getElementById('live-panel');
+    var postureStat   = document.getElementById('posture-status');
+    var tensionStat   = document.getElementById('tension-status');
+
     var running = true;
     var t = 0;
     var isGlitching = false;
@@ -465,16 +670,15 @@
     // --- Dynamic Parameters ---
     var maxTime = 15;
     var timeLeft = 15;
-    var diffMultiplier = 1.0; // 0.5 = easy, 1.0 = normal, 2.0 = hard
+    var diffMultiplier = 1.0; 
 
-    // Custom Terminal Feedback Function
     function updateTerminal(msg, color) {
       if(!running || isGlitching) return;
       dirTxt.style.color = color || "var(--cyan-soft)";
       dirTxt.textContent = ">> " + msg;
     }
 
-    // 1. Sidebar Interactions
+    // Controls Logic
     var intSlider = document.getElementById('intensity-slider');
     var intVal = document.getElementById('intensity-val');
     intSlider.addEventListener('input', function(e) {
@@ -483,26 +687,12 @@
       if(val == 2) { diffMultiplier = 1.0; intVal.textContent = 'LVL-2 (DYNAMIC)'; updateTerminal("SIMULATION LEVEL: DYNAMIC", "var(--cyan)"); }
       if(val == 3) { diffMultiplier = 2.0; intVal.textContent = 'LVL-3 (EXTREME)'; updateTerminal("WARNING: EXTREME MODE ENGAGED", "var(--amber)"); }
       
-      // Update dot visual
       cogDot.style.r = diffMultiplier === 2.0 ? "16" : (diffMultiplier === 0.5 ? "10" : "13");
       cogDot.style.fill = diffMultiplier === 2.0 ? "var(--danger)" : "var(--amber)";
     });
 
-    var fluxSlider = document.getElementById('flux-slider');
-    var fluxVal = document.getElementById('flux-val');
-    fluxSlider.addEventListener('input', function(e) {
-      fluxVal.textContent = e.target.value + '%';
-      updateTerminal("MAGNETIC FLUX ADJUSTED TO " + e.target.value + "%");
-    });
-
-    document.getElementById('tog-gravity').addEventListener('change', function(e) {
-      updateTerminal(e.target.checked ? "GRAVITY DAMPENER: ONLINE" : "GRAVITY DAMPENER: OFFLINE", e.target.checked ? "var(--cyan)" : "var(--amber)");
-    });
-    document.getElementById('tog-neural').addEventListener('change', function(e) {
-      updateTerminal(e.target.checked ? "NEURAL SYNC: ESTABLISHED" : "NEURAL SYNC: DISCONNECTED", e.target.checked ? "var(--cyan)" : "var(--amber)");
-    });
-    document.getElementById('tog-cooling').addEventListener('change', function(e) {
-      updateTerminal(e.target.checked ? "COOLING SYS: OPTIMAL" : "WARNING: COOLING SYS OFFLINE", e.target.checked ? "var(--cyan)" : "var(--danger)");
+    document.getElementById('flux-slider').addEventListener('input', function(e) {
+      document.getElementById('flux-val').textContent = e.target.value + '%';
     });
 
     var durBtns = document.querySelectorAll('#dur-btns .btn-opt');
@@ -538,7 +728,7 @@
       rollBars.forEach(b => b.style.height = Math.max(10, Math.random() * 100) + '%');
     }
 
-    // 2. Radar Telemetry Logic 
+    // 2. Physics & Animation Tick
     function tick() {
       if (!running) return;
       t += 1;
@@ -546,10 +736,11 @@
       var pitch = (12.4 + Math.sin(t * 0.35) * 4 + (Math.random() - 0.5) * 2.5) * diffMultiplier;
       var roll  = (-5.2 + Math.cos(t * 0.42) * 3 + (Math.random() - 0.5) * 2.5) * diffMultiplier;
 
+      // Radar Dot Position
       var dx = Math.max(-75, Math.min(75, roll * 4));
       var dy = Math.max(-75, Math.min(75, -pitch * 3));
-
       cog.setAttribute('transform', 'translate(' + (150 + dx) + ',' + (150 + dy) + ')');
+      
       animateWaves();
 
       if (!isGlitching) {
@@ -563,13 +754,35 @@
         var gForce = (1.0 + (dist * 0.005)).toFixed(2);
         gforceEl.textContent = "G-FORCE: " + gForce + " G";
 
+        // Right Side Human Animation Sync
+        var boardTilt = Math.max(-30, Math.min(30, roll * 2.5));
+        var leanAngle = -boardTilt * 1.2; // Body leans opposite to maintain balance
+        var armSwing = boardTilt * 1.5;
+        
+        // Artificial Horizon reacts to pitch and roll
+        var horizonTilt = -boardTilt * 0.8;
+        var horizonShift = pitch * 1.5;
+
+        liveRigGroup.style.transform = 'rotate(' + boardTilt + 'deg)';
+        liveUpper.style.transform = 'rotate(' + leanAngle + 'deg)';
+        liveArms.style.transform = 'rotate(' + armSwing + 'deg)';
+        horizonLine.style.transform = `translateY(${horizonShift}px) rotate(${horizonTilt}deg)`;
+
+        // Update Text Status
+        if(balance < 60) {
+           postureStat.textContent = "CRITICAL"; postureStat.style.color = "var(--danger)";
+           tensionStat.textContent = "HIGH"; tensionStat.style.color = "var(--amber)";
+        } else {
+           postureStat.textContent = "OPTIMAL"; postureStat.style.color = "var(--cyan)";
+           tensionStat.textContent = "NOMINAL"; tensionStat.style.color = "var(--cyan)";
+        }
+
         last.pitch = pitch; last.roll = roll; last.balance = balance;
       }
     }
-    var loop = setInterval(tick, 400); 
-    tick();
+    var loop = setInterval(tick, 150); // Fast update for smooth movement
 
-    // 3. COUNTDOWN LOGIC
+    // 3. COUNTDOWN
     var countdownTimer = setInterval(function() {
       if (!running) return;
       timeLeft--;
@@ -579,7 +792,7 @@
         endTest('completed');
       }
 
-      timeTxt.textContent = (timeLeft < 10 ? '0' : '') + timeLeft;
+      timeTxt.textContent = "00:" + (timeLeft < 10 ? '0' : '') + timeLeft;
       timerFill.style.width = ((timeLeft / maxTime) * 100) + '%';
 
       if (!isGlitching && timeLeft > 0 && timeLeft % 3 === 0) {
@@ -587,13 +800,14 @@
       }
     }, 1000);
 
-    // 4. GLITCH LOGIC (Happens if LVL-2 or LVL-3)
+    // 4. GLITCH LOGIC
     var glitchTime = 4000 + (Math.random() * 5000); 
     var glitchTrigger = setTimeout(function() {
       if (!running || diffMultiplier < 1.0) return; 
       
       isGlitching = true;
       overlay.classList.add('active');
+      livePanelWrap.classList.add('glitch-active');
       
       pitchEl.textContent = "ERR!!"; rollEl.textContent = "ERR!!";
       balanceEl.textContent = "00%"; gforceEl.textContent = "G-FORCE: MAX";
@@ -601,27 +815,39 @@
       dirTxt.style.color = "var(--danger)";
       dirTxt.textContent = ">> CRITICAL WARNING: SYSTEM OVERLOAD!";
 
+      // Make human fail balance
+      liveRigGroup.style.transform = 'rotate(45deg)';
+      liveUpper.style.transform = 'rotate(15deg)'; // Falls with the board
+      horizonLine.style.transform = 'translateY(-30px) rotate(-45deg)';
+
       setTimeout(function() {
         if (!running) return;
         isGlitching = false;
         overlay.classList.remove('active');
+        livePanelWrap.classList.remove('glitch-active');
         statusbar.textContent = "SYS.STATUS: LIVE_TRACKING // RECORDING_TELEMETRY // SUBJECT_IN_MOTION";
         updateTerminal("SYSTEM RECOVERED. STABILIZING...", "var(--cyan-soft)");
       }, diffMultiplier === 2.0 ? 2500 : 1500); 
       
     }, glitchTime);
 
-    // 5. END TEST LOGIC
+    // 5. END TEST
     function endTest(reason) {
       if (!running) return;
       running = false;
       clearInterval(loop); clearInterval(countdownTimer); clearTimeout(glitchTrigger); 
 
       isGlitching = false; overlay.classList.remove('active');
+      livePanelWrap.classList.remove('glitch-active');
       timeTxt.textContent = "00"; timerFill.style.width = "0%";
       
+      // Stop Animations
       pitchBars.forEach(b => b.style.height = '10%');
       rollBars.forEach(b => b.style.height = '10%');
+      liveRigGroup.style.transform = 'rotate(0deg)';
+      liveUpper.style.transform = 'rotate(0deg)';
+      liveArms.style.transform = 'rotate(0deg)';
+      horizonLine.style.transform = 'translateY(0px) rotate(0deg)';
 
       estopBtn.disabled = true;
       estopBtn.textContent = '[ ENDING TEST... ]';
