@@ -81,26 +81,43 @@
     letter-spacing: 3px; color: var(--white); text-shadow: 0 0 12px rgba(38, 232, 245, .25);
   }
   
-  /* ---------- Admin / Control Panel Button ---------- */
+  /* ---------- Admin / Control Panel Button (HIGHLIGHTED) ---------- */
   .btn-admin {
-    background: rgba(38, 232, 245, 0.05);
-    border: 1px solid var(--cyan-dim);
-    color: var(--cyan);
+    background: rgba(255, 176, 32, 0.15); /* Amber tinted background */
+    border: 1px solid var(--amber);
+    color: var(--amber);
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: clamp(9px, 1.3vmin, 12px);
+    font-weight: 700;
+    font-size: clamp(10px, 1.4vmin, 13px);
     letter-spacing: 1.5px;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+    text-shadow: 0 0 5px var(--amber-glow);
     transition: all 0.2s ease;
+    animation: adminPulse 1.5s infinite alternate; /* Pulsing effect */
   }
+
+  @keyframes adminPulse {
+    0% {
+      box-shadow: 0 0 5px var(--amber-glow);
+      background: rgba(255, 176, 32, 0.05);
+    }
+    100% {
+      box-shadow: 0 0 18px var(--amber), inset 0 0 8px var(--amber-glow);
+      background: rgba(255, 176, 32, 0.25);
+    }
+  }
+
   .btn-admin:hover {
-    background: rgba(38, 232, 245, 0.15);
-    border-color: var(--cyan);
-    box-shadow: 0 0 10px var(--cyan-glow);
-    color: var(--white);
+    background: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 25px var(--amber);
+    color: var(--bg);
+    text-shadow: none;
+    animation: none; /* Stops pulsing on hover */
   }
+  
   .btn-admin:active {
     transform: scale(0.95);
   }
@@ -272,7 +289,7 @@
 
   <header class="topbar">
     <span class="brand">ZERO-G LABS</span>
-    <!-- নতুন কন্ট্রোল প্যানেল বাটন অ্যাড করা হয়েছে -->
+    <!-- আপডেটেড কন্ট্রোল প্যানেল বাটন -->
     <button class="btn-admin" onclick="window.location.href='10-admin.html'">[ CONTROL PANEL ]</button>
   </header>
 
